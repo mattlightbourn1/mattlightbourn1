@@ -33,38 +33,81 @@ Placeholder for sequencing of different types of API operations and what is requ
 
 Where it differs, we will migrate any/all information about the business or an individual situation's location or building out of the sections which enables sections to be generic and driven by section_type value. In addition, everything inside of a section is generic including the coverages and any cover extensions and specified Items.
 
-Object | Path | Description | Originating Operation
+### <a name="rootObject"></a>Root object
+
+Object Property | Property Type | Description | Originating Operation
 ------ | -------- | -------- | --------------------
-`policy` | `ROOT` | This contains all policy related objects for this request. | `request`
-`policy_notes` | `policy` | These are the notes that are added to request by the **consumer** as either a `PRINTABLE_NOTE` if it is to appear on the schedule or for information purposes only is a `NON_PRINTABLE_NOTE` | `request`
-`acceptance_messages` | `policy` | This is where any policy related issues were found when processing a quote request. | `response`
-`endorsement_clauses` | `policy` | This is where an underwriter imposed or automated endorsement clauses have been added to a request based upon the outcome of processing a quote request. | `response`
-`policy_premiums` | `policy` | These are the policy premiums which are the total of all `situation` and `section` based premiums contained within the request. | `response`
-`party` | `policy` | Represents all parties related to the processing of the request including the insured, the broker agent and interested parties | `request`
-`lines_of_business` | `policy` | Each request can have one or more lines of business. Each will have details of the business, related sections and situations. | `request`
-`business_details` | `policy.lines_of_business` | This object contains all aspects of business activities and details about how the business operates | `request`
+`distributor_details` | `object` | This contains information about the intermediary organisation transacting with the insurer and includes what trading platform is being used to originate the request. | `request`
+`policy` | `object` | This contains all policy related objects for this request. | `request`
 
-### <a name="partyDetails"></a>Party Details
+### <a name="policyObject"></a>Policy object
+
+Object Property | Property Type | Description | Originating Operation
+------ | -------- | -------- | --------------------
+`quote_id` | `string` | Text | `response`
+`policy_id` | `string` | Text | `response`
+`opportunity_id` | `string` | Text | `request`
+`thread_id` | `string` | Text | `request`
+`quote_number` | `string` | Text | `response`
+`policy_number` | `string` | Text | `response`
+`parties` | `object` | Represents all parties related to the processing of the request including the insured, the broker agent and interested parties | `request`
+`policy_notes` | `array objects` | These are the notes that are added to request by the **consumer** as either a `PRINTABLE_NOTE` if it is to appear on the schedule or for information purposes only is a `NON_PRINTABLE_NOTE` | `request`
+`policy_dates` | `object` | Text | `request`
+`policy_wording` | `object` | Text | `request`
+`policy_premiums` | `array objects` | These are the policy premiums which are the total of all `situation` and `section` based premiums contained within the request. | `response`
+`commission_rate` | `string` | Text | `response`
+`acceptance_messages` | `array objects` | This is where any policy related issues were found when processing a quote request. | `response`
+`endorsement_clauses` | `array objects` | This is where an underwriter imposed or automated endorsement clauses have been added to a request based upon the outcome of processing a quote request. | `response`
+`lines_of_business` | `array objects` | Each request can have one or more lines of business. Each will have details of the business, related sections and situations. | `request`
+`policy_changes` | `object` | Text | `request`
+`policy_remarks` | `object` | Text | `request` `response`
+
+### <a name="partiesDetails"></a>Parties object
+
+Object Property | Property Type | Description | Originating Operation
+------ | -------- | -------- | --------------------
+`party_history` | `object`| Text | `request`
+`preferred_correspondence` | `string` | This is to assign which party role represents the insured corrspondence in the policy process, either `PRIMARY_POLICY_HOLDER` or `BROKER_AGENT` | `request`
+`party_details` | `array objects` | Details all the information about a specific party involved in the policy process using the [Party object](#partyObject) | `request`
+
+### <a name="partyDetails"></a>Party object
 
 Object |  Description | Originating Operation
 ------ | -------- | --------------------
-`party_roles` | This is where the assignment of one or more role as `PRIMARY_POLICY_HOLDER`, `INTERESTED_PARTY` and `BROKER_AGENT` | `request`
-`party_interests` | If `party_roles` includes `INTERESTED_PARTY` then `party_interests` are to be set | `request`
+`party_roles` | This is where the assignment of one or more role as `PRIMARY_POLICY_HOLDER`, `INTERESTED_PARTY` and `BROKER_AGENT` using the **Party Roles object** | `request`
+`party_interests` | If `party_roles` includes `INTERESTED_PARTY` then `party_interests` are to be set uing the [Party Interests object](#partyInterestsObject) | `request`
 
-### <a name="partyDetails"></a>Party Interests
+### <a name="partyInterestsObject"></a>Party Interests object
 
-Object |  Description | Originating Operation
------- | -------- | --------------------
-`policy_interests` | For all non situation based interests of one or more `sections` to be added to the array | `request`
-`situation_interests` | For interests of one or more `sections` to be added to the array per situation in the request. For each situation, the `situation_id` will be required. | `request`
+Object Property | Property Type |  Description | Originating Operation
+------ | ------ |-------- | --------------------
+`nature_of_interest` | `string` | Sets the nature of interest by this party based on the [Nature of Interest](#natureOfInterestOptions) | `request`
+`policy_interests` | `object` | For all non situation based interests of one or more `sections` to be added to the array | `request`
+`situation_interests` | `object` | For interests of one or more `sections` to be added to the array per situation in the request. For each situation, the `situation_id` will be required. | `request`
 
-### <a name="businessDetails"></a>Business Details
+### <a name="businessDetailsObject"></a>Business Details object
 
-Object |  Description | Originating Operation
------- | -------- | --------------------
-`license_details` | Relates to any specific business related license holders required to perform specific business activities. Currently relates to `VIC_PLUMBERS` and `QLD_ELECTRICIANS` but extensible for others in the future. | `request`
-`overseas_activities` | This is to describe what overseas activities the business performs and specify the turnover that such activities generates. | `request`
-`employee_by_location` |  This is to describe what responsibilities staff have in various states. This is related to information required for **Employee Dishonesty** coverages. | `request`
-`import_goods_details`  | This where the description of goods, where they are imported and the turnover generated is specified. | `request`
-`export_usa_canada_details`  | This where the description of goods exported to USA or canada and the turnover generated is specified. | `request`
-`seasonality`  | This is where the start of each business season and the impact to turnover is supplied. | `request`
+Object Property | Property Type |  Description | Originating Operation
+------ | ------ |-------- | --------------------
+`license_details` | `object` | Relates to any specific business related license holders required to perform specific business activities. Currently relates to `VIC_PLUMBERS` and `QLD_ELECTRICIANS` but extensible for others in the future. | `request`
+`overseas_activities` | `object` | This is to describe what overseas activities the business performs and specify the turnover that such activities generates. | `request`
+`employee_by_location` | `object`|  This is to describe what responsibilities staff have in various states. This is related to information required for **Employee Dishonesty** coverages. | `request`
+`import_goods_details`  | `object`| This where the description of goods, where they are imported and the turnover generated is specified. | `request`
+`export_usa_canada_details`  | `object`| This where the description of goods exported to USA or canada and the turnover generated is specified. | `request`
+`seasonality`  | `object`| This is where the start of each business season and the impact to turnover is supplied. | `request`
+
+## Reference Data
+
+### <a name="natureOfInterestOptions"></a>Natures of Interest
+
+Option Name | Option Code |  Option Description 
+------ | ------ |-----------
+Mortgagee	| MORTGAGEE
+Local Government Authority | LOCAL_GOVERNMENT_AUTHORITY
+Landlord	| LANDLORD
+Lease	| LEASE
+Premium Funder |	PREMIUM_FUNDER
+Principal	| PRINCIPAL
+Franchisor |	FRANCHISOR
+Lendor |	LENDOR
+Other |	OTHER
