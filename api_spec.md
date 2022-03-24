@@ -45,6 +45,15 @@ Object Property | Property Type | Instructions | Mandatory
 ------ | -------- | -------- | -------
 `opportunitiy_id` | `string` | For a new business quote request, each start as a new opportunity with a unique UUID identifer. This is used for all subsequent transactions throughout the lifecycle until finally bound and closed or used to notify loss. | YES
 `thread_id` | `string` | This is specific to the lifecycle of a quote with a unique UUID identifier within the opportunity. It is possible to create additional threads for different scenarios. Only one thread within an opportunity will eventually be bound and all other threads considered redundant. | YES
+`distributor_details` | `object` | This identifies who is interacting with the insurer and identifies the trading platform channel being used as described using [Distributor Details object] (#distributorDetailsObject). | YES
+`parties.party[0]` | `object` | **PRIMARY_POLICY_HOLDER** party is the minimum party requirements for all transactions using [Party object](#partyObject). | YES
+`parties.party[1]` | `object` | **BROKER_AGENT** party is to identify the individual related to the broker as specified in Distributor Details using [Party object](#partyObject). | NO
+`parties.party[2]` | `object` | **INTERESTED_PARTY** party is to identify the individual related to the broker as specified in Distributor Details using [Party object](#partyObject). | NO
+`parties.party_history` | `object` | This includes party disclosures and information related to claims within the last 3 years. | YES
+`policy_dates` | `object` | Text. | YES
+`policy_notes` | `array objects` | Text. | NO
+`lines_of_business` | `array objects` | Text. | YES
+
 
 ## <a name="updateQuote"></a>Update Quote
 
