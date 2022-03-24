@@ -153,7 +153,7 @@ Object Property | Property Type |  Description | Originating Operation
 `remark` | `array objects` | Used to add remarks during the lifecycle of the quote including one or many attached files using [Policy Remark object](#policyRemarkObject). | `request`
 
 ### <a name="policyRemarkObject"></a>Policy Remark object
-This is utilised in both the `REQUEST` and `RESPONSE` and contains objects specific to each.
+This is specifically how the consumer supplies a remark and any related attachment(s).
 
 Object Property | Property Type |  Description | Originating Operation
 ------ | ------ |-------- | --------------------
