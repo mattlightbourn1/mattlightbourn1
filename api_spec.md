@@ -170,7 +170,7 @@ Object Property | Property Type |  Description | Originating Operation
 `business_details` | `object` | This is where all details related to the business activities and the parameters of the business operation are defined using [Business Details object](#businessDetailsObject). | `request`
 `business_characteristics` | `array object` | This is to capture variable information about the business in addition to the core. For example, acceptance questions are to be captured using data driven objects where the maintenance of what can be supplied in a payload is done through configuration. This is using [Characteristics object](#characteristicsObject). | `request`
 `sections` | `array object` | This is for the policy level sections which contain coverages, excesses and their own sets of common response object. This is using [Section object](#sectionObject). | `request`
-`situations` | `array object` | This is for all the situations related to the business for the policy and its related sections using [Section object](#sectionObject). | `request`
+`situations` | `array object` | This is for all the situations related to the business for the policy and its related sections using [Situation object](#situationObject). | `request`
 
 ### <a name="businessDetailsObject"></a>Business Details object
 
@@ -202,7 +202,7 @@ Object Property | Property Type |  Description | Originating Operation
 ------ | ------ |-------- | --------------------
 `section_type` | `string` | This is to identify what type of section is within this array so that all objects and properties are in the correct context using [Section and Coverage Options](#sectionCoverageOptions) | `request`
 `section_quote_status` | `string` | This is the overall status of the section which is the roll-up of all related coverages. | `response`
-`situation_characteristics` | `array object` | This is to capture variable information about a situation in addition to the core. For example, acceptance questions are to be captured using data driven objects where the maintenance of what can be supplied in a payload is done through configuration. This is using [Characteristics object](#characteristicsObject). | `request`
+`section_status` | `string` This is to indicate whether a this section was already **EXISTING** or **ADDED** or **REMOVED** from an existing policy. | `request`
 `acceptance_messages` | `array objects` | This is where any section related issues were found when processing a quote request using [Acceptance Messages object](#acceptanceMessagesObject) | `response`
 `endorsement_clauses` | `array objects` | This is where an underwriter imposed or automated endorsement clauses have been added to a request based upon the outcome of processing a quote request using [Endorsement Clauses object](#endorsementClausesObject). | `response`
 `section_notes` | `array objects` | This is for consumer added notes using [Notes](#notesObject). | `request`
@@ -239,6 +239,23 @@ Object Property | Property Type |  Description | Originating Operation
           "exposure_type": "SUM_INSURED",
           "coverage_extensions": []
 ```
+
+### <a name="situationObject"></a>Situation object
+This is for sections in policy or for each situation. Each section also has its own sets of coverages, cover extensions along with common response objects.
+
+Object Property | Property Type |  Description | Originating Operation
+------ | ------ |-------- | --------------------
+`situation_identifier` | `string` | Text | `request`
+`situation_type` | `string` | Text | `request`
+`situation_quote_status` | `string` | Text | `response`
+`situation_status` | `string` | Used to identify whether the situation was already **EXISTING** or **ADDED** or **REMOVED** from the policy. | `request`
+`situation_occupation` | `object` | Identifies what primary occupation is performed at this situation. | `request`
+`situation_location`
+`situationn_characteristics` | `array object` | This is to capture variable information about a situation in addition to the core. For example, acceptance questions are to be captured using data driven objects where the maintenance of what can be supplied in a payload is done through configuration. This is using [Characteristics object](#characteristicsObject). | `request`
+`acceptance_messages` | `array objects` | This is where any section related issues were found when processing a quote request using [Acceptance Messages object](#acceptanceMessagesObject) | `response`
+`endorsement_clauses` | `array objects` | This is where an underwriter imposed or automated endorsement clauses have been added to a request based upon the outcome of processing a quote request using [Endorsement Clauses object](#endorsementClausesObject). | `response`
+`situation_notes` | `array objects` | This is for consumer added notes using [Notes](#notesObject). | `request`
+`situation_premiums` | `array objects` | These are the situation premiums which are the total of all `section` premiums contained within the request using [Premiums object](#premiumsObject). | `response`
 
 ### <a name="acceptanceMessagesObject"></a>Acceptance Messages object
 This is where any issues were found when processing a quote request.
