@@ -21,11 +21,20 @@ Operation | Type | Description
 
 ### <a name="integrationObjects"></a>Integration Related Data Objects
 
-Placeholder for identifiers, etc
+Object Property | Property Type | Description | Originating Operation
+------ | -------- | -------- | --------------------
+`X-Iag-Correlation-Id` | `string` | Used to tie together request and response messages for async operations. This is unique per request and returned back in the response. | `request`
+`X-B3-GlobalTransactionId` | `string` | This is the unique message identifier for each and every request and response. | `request` `response`
+`quoteid` | `string` | The quote identifier is used in the url for any update quote operations for new business, alteration and cancel. When a quote requires an update, the `quote_id` from [Policy object](#policyObject) will be required. | `request`
+`policyid` | `string` | The policy identifier is used in the url for close after a bind has successfully produced a policy from a quote. When a policy lifecycle needs to close, the `policy_id` from [Policy object](#policyObject) will be required. | `request`
 
 ### <a name="integrationDetails"></a>Integration Details
 
 Placeholder for sequencing of different types of API operations and what is required with each.
+
+## SIDE Data Schema
+
+Below are the details of what exists in the SIDE (Standardised Insurance Data Exchange) schema used across various payloads based upon different operations.
 
 ### <a name="insuranceObjects"></a>Insurance Related Data Objects
 
@@ -35,11 +44,64 @@ Where it differs, we will migrate any/all information about the business or an i
 
 ### <a name="rootObject"></a>Root object
 
+From the root of the body, there are various expected objects depending on where you are in the lifecycle of an end to end set of operations. Up until **Bind** all customer and request related information will be available in the object `policy`. For **Close** and **Cancel** specific information, this is located in their respective objects from the root.
+
 Object Property | Property Type | Description | Originating Operation
 ------ | -------- | -------- | --------------------
-`distributor_details` | `object` | This contains information about the intermediary organisation transacting with the insurer and includes what trading platform is being used to originate the request. | `request`
+`distributor_details` | `object` | This contains information about the intermediary organisation transacting with the insurer and includes what trading platform is being used to originate the request using [Distributor Details object](#distributorDetailsObject). | `request`
 `policy` | `object` | This contains all policy related objects for this request using [Policy object](#policyObject) | `request`
-`transaction_activity_log` | `array objects` | This contains information about the exchange of information between consumer and insurer. All entries here are added by the insurer including where activity is from the consumer. | `response`
+`activity_log` | `array objects` | This contains information about the exchange of information between consumer and insurer. All entries here are added by the insurer including where activity is from the consumer using [Activity Log object](#activityLogObject. | `response`
+
+### <a name="distributorDetailsObject"></a>Distributor Details object
+
+This contains information about the intermediary organisation transacting with the insurer and includes what trading platform is being used to originate the request.
+
+Object Property | Property Type | Description | Originating Operation
+------ | -------- | -------- | --------------------
+`intermediary_organisation` | `string` | This is the broker's organisation. | `request`
+`intermediary_office` | `string` | This is the broker's organisation's branch or site. | `request`
+`trading_platform_channel` | `string` | This is the trading platform's channel where the request originated as a data payload. | `request`
+
+```json
+    "distributor_details": {
+	"office_identifier": "APH_HQ",
+	"office_name": "Office Name",
+	"organisation_identifier": "APH_HQ",
+	"organisation_name": "organisation Name",
+	"trading_platform_channel": "tradingPlatformChannel"
+	}
+```
+
+### <a name="activityLogsObject"></a>Activity Log object
+
+his contains information about the exchange of information between consumer and insurer. All entries here are added by the insurer including where activity is from the consumer.
+
+Object Property | Property Type | Description | Originating Operation
+------ | -------- | -------- | --------------------
+`acceptance_messages` | `string` | If the transaction activity is related to an issue then the related acceptance message is included. | `response`
+`attachments` | `string` | If the transaction activity included one or more attachments, they are listed here. | `response`
+`reference` | `string` | This is the trading platform's channel where the request originated as a data payload. | `response`
+`remarks` | `string` | If the transaction activity included a remark added by the broker, it will show here. | `response`
+`sender_organisation` | `string` | This specifies who originated this transaction activity. | `response`
+`serial_number` | `string` | This specifies in which order the activities occured. | `response`
+`time_stamp` | `string` | This is when in UTC the activity took place. | `response`
+`type` | `string` | This indicates the type of transaction the activity relates to. | `response`
+
+```json
+    "activity_log" : [
+        {
+            "acceptance_messages": "REF00002 Transaction forward-dated beyond standard limit",
+            "attachments": "Schedule.pdf (1mb)\nPhoto.jpg (150kb)\nEmail.msg (1mb)",
+            "reference": "E15T1234567",
+            "remarks": "This quote is based on CGU default excess.",
+            "sender_organisation": "CGU",
+            "serial_number": 1,
+            "time_stamp": "2020-06-30T15:47:55.123+10:00",
+            "type": "Initial Quote"
+       }
+    ]
+```
+
 
 ### <a name="policyObject"></a>Policy object
 
@@ -71,23 +133,29 @@ Represents all parties related to the processing of the request including the in
 
 Object Property | Property Type | Description | Originating Operation
 ------ | -------- | -------- | --------------------
-`party_history` | `object`| Text | `request`
+`party_history` | `object`| This is where there is a combined all insured party set of information related to disclosures and any claims within the last 3 years.  | `request`
 `preferred_correspondence` | `string` | This is to assign which party role represents the insured corrspondence in the policy process, either `PRIMARY_POLICY_HOLDER` or `BROKER_AGENT` | `request`
 `party_details` | `array objects` | Details all the information about a specific party involved in the policy process using the [Party object](#partyObject) | `request`
 
-### <a name="partyDetails"></a>Party object
+### <a name="partyObject"></a>Party object
 Details all the information about a specific party involved in the policy process
 
 Object Property | Property Type | Description | Originating Operation
 ------ | -------- | -------- | --------------------
 `party_type` | `string` | The options are either **ORGANISATION** or **INDIVIDUAL** | `request`
-`party_names` | `array object` | This is to capture both the trading name and the name it is to be insured under. | `request`
-`party_contacts` | `array object` | This is to capture one or more related individual contact details. | `request`
+`party_names` | `array object` | This is to capture both the trading name and the name it is to be insured under using the [Party Names object](#partyNamesObject). | `request`
+`party_contacts` | `array object` | This is to capture one or more related individual contact details using the [Party Contacts object](#partyContactsObject). | `request`
 `party_roles` | `array` | This is where the assignment of one or more role as `PRIMARY_POLICY_HOLDER`, `INTERESTED_PARTY` and `BROKER_AGENT`. | `request`
 `party_interests` | `object` | If `party_roles` includes `INTERESTED_PARTY` then `party_interests` are to be set uing the [Party Interests object](#partyInterestsObject) | `request`
 `party_address` | `object` | This is the physical address of the party using [Address object](#addressObject). | `request`
 `website_address`
 `broker_client_id` | `string` | If the party represents the insured then the BTP originated client identifier should exist here. | `request`
+
+### <a name="partyNamesObject"></a>Party Names object
+Placeholder
+
+### <a name="partyContactsObject"></a>Party Contacts object
+Placeholder
 
 ### <a name="partyInterestsObject"></a>Party Interests object
 If `party_roles` includes `INTERESTED_PARTY` then `party_interests` are to be set.
