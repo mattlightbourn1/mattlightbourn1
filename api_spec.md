@@ -8,17 +8,6 @@ Created by Matt Lightbourn
 
 This page details a concept data payload for the exchange of data between various internal and external parties within the lifecycle of an insurance quote request right through to when that quote is bound and becomes an active policy. It also then includes any alterations, cancellations and renewals of that policy.
 
-### <a name="apiOperations"></a>Supported API Operations
-
-The API comes with the below standard operations
-
-Operation | Type | Description
------- | -------- | --------
-`QuoteRequest` | `POST` | Create a New Business Quote Request
-`UpdateQuote` | `PUT` | Referencing an existing `quoteid` add, remove or change the content of the original quote request.
-`BindQuote` | `PUT` | Referencing an existing `quoteid` commit to making a quote into a policy with a bind request.
-`CloseCycleRequest` | `PUT` | Once a quote has been a policy, the policy schedule is to be attached the request and referencing the `policyid` in order to complete the request lifecycle.
-
 ### <a name="integrationObjects"></a>Integration Related Data Objects
 
 Object Property | Property Type | Description | Originating Operation
@@ -28,9 +17,50 @@ Object Property | Property Type | Description | Originating Operation
 `quoteid` | `string` | The quote identifier is used in the url for any update quote operations for new business, alteration and cancel. When a quote requires an update, the `quote_id` from [Policy object](#policyObject) will be required. | `request`
 `policyid` | `string` | The policy identifier is used in the url for close after a bind has successfully produced a policy from a quote. When a policy lifecycle needs to close, the `policy_id` from [Policy object](#policyObject) will be required. | `request`
 
-### <a name="integrationDetails"></a>Integration Details
+### <a name="apiOperations"></a>Supported API Operations
 
-Placeholder for sequencing of different types of API operations and what is required with each.
+The API comes with the below standard operations
+
+Operation | Type | Description
+------ | -------- | --------
+`QuoteRequest` | `POST` | Create a New Business Quote Request using Quote Request](#quoteRequest)
+`UpdateQuote` | `PUT` | Referencing an existing `quoteid` add, remove or change the content of the original quote request.
+`BindQuote` | `PUT` | Referencing an existing `quoteid` commit to making a quote into a policy with a bind request.
+`CloseCycleRequest` | `PUT` | Once a quote has been a policy, the policy schedule is to be attached the request and referencing the `policyid` in order to complete the request lifecycle.
+
+## <a name="quoteRequest"></a>Quote Request
+
+A quote request is a transaction submitted by a consumer (example : Broker) to the insurer.
+
+### Header
+Object Property | Property Type | Instructions | Mandatory
+------ | -------- | -------- | -------
+`X-Iag-Correlation-Id` | `string` | Must be unique on the outbound and used to relate a response back from the insurer who will return the same UUID. | YES
+`X-B3-GlobalTransactionId` | `string` | Must be unique on the outbound. For the response to a request, a new unique message identifier will be returned. | YES
+
+### Body
+Object Property | Property Type | Instructions | Mandatory
+------ | -------- | -------- | -------
+`opportunitiy_id` | `string` | For a new business quote request, each start as a new opportunity with a unique UUID identifer. This is used for all subsequent transactions throughout the lifecycle until finally bound and closed or used to notify loss. | YES
+`thread_id` | `string` | This is specific to the lifecycle of a quote with a unique UUID identifier within the opportunity. It is possible to create additional threads for different scenarios. Only one thread within an opportunity will eventually be bound and all other threads considered redundant. | YES
+
+## <a name="updateQuote"></a>Update Quote
+
+### Header
+
+### Body
+
+## <a name="bindQuote"></a>Bind Quote
+
+### Header
+
+### Body
+
+## <a name="closeRequest"></a>Close Request
+
+### Header
+
+### Body
 
 ## SIDE Data Schema
 
@@ -244,12 +274,31 @@ Object Property | Property Type |  Description | Originating Operation
 
 Object Property | Property Type |  Description | Originating Operation
 ------ | ------ |-------- | --------------------
-`license_details` | `object` | Relates to any specific business related license holders required to perform specific business activities. Currently relates to `VIC_PLUMBERS` and `QLD_ELECTRICIANS` but extensible for others in the future. | `request`
-`overseas_activities` | `object` | This is to describe what overseas activities the business performs and specify the turnover that such activities generates. | `request`
-`employee_by_location` | `object`|  This is to describe what responsibilities staff have in various states. This is related to information required for **Employee Dishonesty** coverages. | `request`
-`import_goods_details`  | `object`| This where the description of goods, where they are imported and the turnover generated is specified. | `request`
-`export_usa_canada_details`  | `object`| This where the description of goods exported to USA or canada and the turnover generated is specified. | `request`
-`seasonality`  | `object`| This is where the start of each business season and the impact to turnover is supplied. | `request`
+`license_details` | `object` | Relates to any specific business related license holders required to perform specific business activities. Currently relates to `VIC_PLUMBERS` and `QLD_ELECTRICIANS` but extensible for others in the future using [License Details object](#licenseDetailsObject). | `request`
+`overseas_activities` | `object` | This is to describe what overseas activities the business performs and specify the turnover that such activities generates using [Overseas Activities object](#overseasActivitiesObject). | `request`
+`employee_by_location` | `array objects`|  This is to describe what responsibilities staff have in various states. This is related to information required for **Employee Dishonesty** coverages using [Employees by Location object](#employeesByLocationObject). | `request`
+`import_goods_details`  | `array objects`| This where the description of goods, where they are imported and the turnover generated is specified using [Import Goods object](#importGoodsObject). | `request`
+`export_usa_canada` | `boolean` | To be set to true or false. If true, at least one row of `export_usa_canada_details` is required. | `request`
+`export_usa_canada_details`  | `object`| This where the description of goods exported to USA or canada and the turnover generated is specified using [Export USA and Canada Goods object](#exportUsaCanadaGoodsObject). | `request`
+`seasonality`  | `object`| This is where the start of each business season and the impact to turnover is supplied using [Seasonality object](#seasonalityObject). | `request`
+
+### <a name="licenseDetailsObject"></a>License Details object
+Placeholder
+
+### <a name="overseasActivitiesObject"></a>Overseas Activities object
+Placeholder
+
+### <a name="employeesByLocationObject"></a>Employees by Location object
+Placeholder
+
+### <a name="importGoodsObject"></a>Import Goods object
+Placeholder
+
+### <a name="exportUsaCanadaGoodsObject"></a>Export USA & Canada Goods object
+Placeholder
+
+### <a name="seasonalityObject"></a>Seasonality object
+Placeholder
 
 ### <a name="characteristicsObject"></a>Characteristics object
 This is used for variable information using `category` and `type` combination to allow for a configuration driven solution for add, remove and change to acceptance questions.
@@ -291,8 +340,8 @@ Object Property | Property Type |  Description | Originating Operation
 `value_type` | `string` | This is to indicate what `coverage_value is. The options are **CURRENCY** or **PERC** for percentage. | `request`
 `basis_of_settlement` | `string` | The current options are **REPLACEMENT** or **INDEMNITY**. | `request`
 `exposure_type` | `string` | Depending on the type of converage, this is either **SUM_INSURED** or **LIMIT**. | `request`
-`coverage_extensions` | `array objects` | This is for future coverages which has a total exposure value as the sum of all related coverage extensions. | `request`
-`specified_items` | `array objects` | This is for listing specified item where the total exposure value as the sum of all related specified items using [Specified Items](#specifiedItemsObject). | `request`
+`coverage_extensions` | `array objects` | This is for future coverages which has a total exposure value as the sum of all related coverage extensions using [Coverage Extensions object](#coverageExtensionsObject). | `request`
+`specified_items` | `array objects` | This is for listing specified item where the total exposure value as the sum of all related specified items using [Specified Items object](#specifiedItemsObject). | `request`
 
 ### Coverage Example
 ```json
@@ -307,6 +356,12 @@ Object Property | Property Type |  Description | Originating Operation
           "exposure_type": "SUM_INSURED",
           "coverage_extensions": []
 ```
+
+### <a name="coverageExtensionObject"></a>Coverage Extension object
+Placeholder
+
+### <a name="specifiedItemsObject"></a>Specified Items object
+Placeholder
 
 ### <a name="situationObject"></a>Situation object
 This is for sections in policy or for each situation. Each section also has its own sets of coverages, cover extensions along with common response objects.
