@@ -42,6 +42,8 @@ Object Property | Property Type | Description | Originating Operation
 
 ### <a name="policyObject"></a>Policy object
 
+This is where all information about the policy is contained and it relates to one or more lines of business
+
 Object Property | Property Type | Description | Originating Operation
 ------ | -------- | -------- | --------------------
 `quote_id` | `string` | Text | `response`
@@ -50,19 +52,20 @@ Object Property | Property Type | Description | Originating Operation
 `thread_id` | `string` | Text | `request`
 `quote_number` | `string` | Text | `response`
 `policy_number` | `string` | Text | `response`
+`policy_status` | `string` | This is the status of the entire policy based upon the statuses of each section and situation within the request | `response`
 `parties` | `object` | Represents all parties related to the processing of the request including the insured, the broker agent and interested parties using [Parties object](#partiesObject) | `request`
-`policy_notes` | `array objects` | These are the notes that are added to request by the **consumer** as either a `PRINTABLE_NOTE` if it is to appear on the schedule or for information purposes only is a `NON_PRINTABLE_NOTE` using [Policy Notes object](#policyNotesObject) | `request`
 `policy_dates` | `object` | Text using [Policy Dates object](#policyDatesObject) | `request`
 `policy_wording` | `object` | Text using [Policy Wording object](#policyWordingObject) | `request`
 `policy_premiums` | `array objects` | These are the policy premiums which are the total of all `situation` and `section` based premiums contained within the request using [Premiums object](#premiumsObject). | `response`
 `commission_rate` | `string` | Text | `response`
 `acceptance_messages` | `array objects` | This is where any policy related issues were found when processing a quote request using [Acceptance Messages object](#acceptanceMessagesObject) | `response`
 `endorsement_clauses` | `array objects` | This is where an underwriter imposed or automated endorsement clauses have been added to a request based upon the outcome of processing a quote request using [Endorsement Clauses object](#endorsementClausesObject). | `response`
+`policy_notes` | `array objects` | This is where a consumer can add notes which are either to be added to the schedule or is simply information for the benefit of the consumer or underwriter only using [Notes](#notesObject). | `request`
 `lines_of_business` | `array objects` | Each request can have one or more lines of business. Each will have details of the business, related sections and situations using [Lines of Business object](#linesOfBusinessObject). | `request`
-`policy_changes` | `object` | Text | `request`
+`policy_changes` | `object` | This is used when an alteration or cancellation is done to an existing policy using [Policy Changes object](#policyChangesObject | `request`
 `policy_remarks` | `object` | Text | `request` `response`
 
-### <a name="partiesDetails"></a>Parties object
+### <a name="partiesObject"></a>Parties object
 Represents all parties related to the processing of the request including the insured, the broker agent and interested parties.
 
 Object Property | Property Type | Description | Originating Operation
@@ -128,6 +131,26 @@ Object Property | Property Type |  Description | Originating Operation
 `product_name` | `string` | Text | `response`
 `product_version` | `string` | Text | `response`
 
+### <a name="policyChangesObject"></a>Policy Changes object
+This is where an existing policy is being altered or cancelled.
+
+Object Property | Property Type |  Description | Originating Operation
+------ | ------ |-------- | --------------------
+`change_type` | `string` | This is either `CANCELLATION` or `ALTERATION` | `request`
+`change_effective_date` | `date` | When this change comes into effect. | `request`
+`change_reason` | `date` | Currently only applicable to **CANCELLATION** using [Change Reasons object](#changeReasonsObject). | `request`
+`change_sub_reason` | `date` | An extension of `change_reason` * using [Change Reasons object](#changeReasonsObject). | `request`
+
+### <a name="policyRemarksObject"></a>Policy Remarks object
+This is utilised in both the `REQUEST` and `RESPONSE` and contains objects specific to each.
+
+Object Property | Property Type |  Description | Originating Operation
+------ | ------ |-------- | --------------------
+`benefits` | `array string` | Where a response includes quoted sections, for each, there may be some benefits listed | `response`
+`conditions` | `array string` | One or mode conditions imposed automatically or from an underwriter. | `response`
+`decline` | `string` | Where a response concludes that the quote request was **DECLINED** supplies additional information. | `response`
+`remark` | `array objects` | Used to add remarks during the lifecycle of the quote including one or many attached files. | `request`
+
 ### <a name="linesOfBusinessObject"></a>Lines of Business object
 This is where an entire business related to the policy is defined.
 
@@ -172,7 +195,7 @@ Object Property | Property Type |  Description | Originating Operation
 `situation_characteristics` | `array object` | This is to capture variable information about a situation in addition to the core. For example, acceptance questions are to be captured using data driven objects where the maintenance of what can be supplied in a payload is done through configuration. This is using [Characteristics object](#characteristicsObject). | `request`
 `acceptance_messages` | `array objects` | This is where any section related issues were found when processing a quote request using [Acceptance Messages object](#acceptanceMessagesObject) | `response`
 `endorsement_clauses` | `array objects` | This is where an underwriter imposed or automated endorsement clauses have been added to a request based upon the outcome of processing a quote request using [Endorsement Clauses object](#endorsementClausesObject). | `response`
-`section_notes`
+`section_notes` | `array objects` | This is for consumer added notes using [Notes](#notesObject). | `request`
 `coverages`
 `excesses`
 `section_premiums` | `array objects` | These are the section premiums which are the total of all `coverage`  premiums contained within the request using [Premiums object](#premiumsObject). | `response`
@@ -224,6 +247,15 @@ Object Property | Property Type |  Description | Originating Operation
 `code` | `string` | This is the code for any common acceptance messages | `request`
 `description` | `string` | This is the definition of the endorsement clause that has been applied. | `request`
 `title` | `string` | Short description of the endorsement clause. | `request`
+
+### <a name="notesObject"></a>Notes object
+This is an array of objects originated by the consumer and is available at the policy, situation and section level..
+
+Object Property | Property Type |  Description | Originating Operation
+------ | ------ |-------- | --------------------
+`note_identifier` | `string` | A unique identifier for each note | `request`
+`note_type` | `string` | This is either `PRINTABLE_NOTE` (to add to schedule) or `NON_PRINTABLE_NOTE` for information only. | `request`
+`recovery` | `string` | In some cases, a message may also come along with an action of how to recover from the issue. | `request`
 
 ### <a name="premiumsObject"></a>Premiums object
 This is an array of premium objects where there may be more than one in any given response, depending on how the request originated.
