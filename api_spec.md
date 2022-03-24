@@ -38,7 +38,7 @@ Where it differs, we will migrate any/all information about the business or an i
 Object Property | Property Type | Description | Originating Operation
 ------ | -------- | -------- | --------------------
 `distributor_details` | `object` | This contains information about the intermediary organisation transacting with the insurer and includes what trading platform is being used to originate the request. | `request`
-`policy` | `object` | This contains all policy related objects for this request. | `request`
+`policy` | `object` | This contains all policy related objects for this request using [Policy object](#policyObject) | `request`
 
 ### <a name="policyObject"></a>Policy object
 
@@ -50,19 +50,20 @@ Object Property | Property Type | Description | Originating Operation
 `thread_id` | `string` | Text | `request`
 `quote_number` | `string` | Text | `response`
 `policy_number` | `string` | Text | `response`
-`parties` | `object` | Represents all parties related to the processing of the request including the insured, the broker agent and interested parties | `request`
-`policy_notes` | `array objects` | These are the notes that are added to request by the **consumer** as either a `PRINTABLE_NOTE` if it is to appear on the schedule or for information purposes only is a `NON_PRINTABLE_NOTE` | `request`
-`policy_dates` | `object` | Text | `request`
-`policy_wording` | `object` | Text | `request`
-`policy_premiums` | `array objects` | These are the policy premiums which are the total of all `situation` and `section` based premiums contained within the request. | `response`
+`parties` | `object` | Represents all parties related to the processing of the request including the insured, the broker agent and interested parties using [Parties object](#partiesObject) | `request`
+`policy_notes` | `array objects` | These are the notes that are added to request by the **consumer** as either a `PRINTABLE_NOTE` if it is to appear on the schedule or for information purposes only is a `NON_PRINTABLE_NOTE` using [Policy Notes object](#policyNotesObject) | `request`
+`policy_dates` | `object` | Text using [Policy Dates object](#policyDatesObject) | `request`
+`policy_wording` | `object` | Text using [Policy Wording object](#policyWordingObject) | `request`
+`policy_premiums` | `array objects` | These are the policy premiums which are the total of all `situation` and `section` based premiums contained within the request using [Premiums object](#ppremiumsObject). | `response`
 `commission_rate` | `string` | Text | `response`
-`acceptance_messages` | `array objects` | This is where any policy related issues were found when processing a quote request. | `response`
-`endorsement_clauses` | `array objects` | This is where an underwriter imposed or automated endorsement clauses have been added to a request based upon the outcome of processing a quote request. | `response`
-`lines_of_business` | `array objects` | Each request can have one or more lines of business. Each will have details of the business, related sections and situations. | `request`
+`acceptance_messages` | `array objects` | This is where any policy related issues were found when processing a quote request using [Acceptance Messages object](#acceptanceMessagesObject) | `response`
+`endorsement_clauses` | `array objects` | This is where an underwriter imposed or automated endorsement clauses have been added to a request based upon the outcome of processing a quote request using [Endorsement Clauses object](#endorsementClausesObject). | `response`
+`lines_of_business` | `array objects` | Each request can have one or more lines of business. Each will have details of the business, related sections and situations using [Lines of Business object](#linesOfBusinessObject). | `request`
 `policy_changes` | `object` | Text | `request`
 `policy_remarks` | `object` | Text | `request` `response`
 
 ### <a name="partiesDetails"></a>Parties object
+Represents all parties related to the processing of the request including the insured, the broker agent and interested parties.
 
 Object Property | Property Type | Description | Originating Operation
 ------ | -------- | -------- | --------------------
@@ -71,6 +72,7 @@ Object Property | Property Type | Description | Originating Operation
 `party_details` | `array objects` | Details all the information about a specific party involved in the policy process using the [Party object](#partyObject) | `request`
 
 ### <a name="partyDetails"></a>Party object
+Details all the information about a specific party involved in the policy process
 
 Object |  Description | Originating Operation
 ------ | -------- | --------------------
@@ -78,12 +80,24 @@ Object |  Description | Originating Operation
 `party_interests` | If `party_roles` includes `INTERESTED_PARTY` then `party_interests` are to be set uing the [Party Interests object](#partyInterestsObject) | `request`
 
 ### <a name="partyInterestsObject"></a>Party Interests object
+If `party_roles` includes `INTERESTED_PARTY` then `party_interests` are to be set.
 
 Object Property | Property Type |  Description | Originating Operation
 ------ | ------ |-------- | --------------------
 `nature_of_interest` | `string` | Sets the nature of interest by this party based on the [Nature of Interest](#natureOfInterestOptions) | `request`
 `policy_interests` | `object` | For all non situation based interests of one or more `sections` to be added to the array | `request`
 `situation_interests` | `object` | For interests of one or more `sections` to be added to the array per situation in the request. For each situation, the `situation_id` will be required. | `request`
+
+### <a name="linesOfBusinessObject"></a>Lines of Business object
+This is where an entire business related to the policy is defined.
+
+Object Property | Property Type |  Description | Originating Operation
+------ | ------ |-------- | --------------------
+`line_of_business_type` | `string` | This is to identify what type of line of business this is. Currently the default value for CGU is **COMMERCIAL_PACK** | `request`
+`business_details` | `object` | This is where all details related to the business activities and the parameters of the business operation are defined using [Business Details object](#businessDetailsObject). | `request`
+`business_characteristics` | `array object` | This is to capture variable information about the business in addition to the core. For example, acceptance questions are to be captured using data driven objects where the maintenance of what can be supplied in a payload is done through configuration. This is using [Characteristics object](#characteristicsObject). | `request`
+`sections` | `array object` | This is for the policy level sections which contain coverages, excesses and their own sets of common response object. This is using [Section object](#sectionObject). | `request`
+`situations` | `array object` | This is for the policy level sections which contain coverages, excesses and their own sets of common response object. This is using [Section object](#sectionObject). | `request`
 
 ### <a name="businessDetailsObject"></a>Business Details object
 
