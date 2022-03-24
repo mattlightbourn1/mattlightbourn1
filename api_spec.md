@@ -324,7 +324,7 @@ Object Property | Property Type |  Description | Originating Operation
 `endorsement_clauses` | `array objects` | This is where an underwriter imposed or automated endorsement clauses have been added to a request based upon the outcome of processing a quote request using [Endorsement Clauses object](#endorsementClausesObject). | `response`
 `section_notes` | `array objects` | This is for consumer added notes using [Notes](#notesObject). | `request`
 `coverages`
-`excesses`
+`excesses` | `array objects` | This is where the section related excesses are located using [Excess object](#excessObject) | `Request` `Response`
 `section_premiums` | `array objects` | These are the section premiums which are the total of all `coverage`  premiums contained within the request using [Premiums object](#premiumsObject). | `response`
 
 ### <a name="coverageObject"></a>Coverages object
@@ -361,6 +361,9 @@ Object Property | Property Type |  Description | Originating Operation
 Placeholder
 
 ### <a name="specifiedItemsObject"></a>Specified Items object
+Placeholder
+
+### <a name="excessObject"></a>Excess object
 Placeholder
 
 ### <a name="situationObject"></a>Situation object
