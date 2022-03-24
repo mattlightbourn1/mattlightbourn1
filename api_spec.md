@@ -10,6 +10,8 @@ This page details a concept data payload for the exchange of data between variou
 
 ### <a name="integrationObjects"></a>Integration Related Data Objects
 
+These are the identifiers as used in the header and url that control how the interaction between consumer and insurer work and in the context of specific quotes or policies.
+
 Object Property | Property Type | Description | Originating Operation
 ------ | -------- | -------- | --------------------
 `X-Iag-Correlation-Id` | `string` | Used to tie together request and response messages for async operations. This is unique per request and returned back in the response. | `request`
@@ -88,8 +90,10 @@ This contains information about the intermediary organisation transacting with t
 
 Object Property | Property Type | Description | Originating Operation
 ------ | -------- | -------- | --------------------
-`intermediary_organisation` | `string` | This is the broker's organisation. | `request`
-`intermediary_office` | `string` | This is the broker's organisation's branch or site. | `request`
+`organisation_name` | `string` | This is the broker's organisation name. | `request`
+`office_name` | `string` | This is the broker's organisation's branch or site. | `request`
+`organisation_identifier` | `string` | This is the broker's organisation code. | `request`
+`office_identifier` | `string` | This is the broker's organisation's branch or site code. | `request`
 `trading_platform_channel` | `string` | This is the trading platform's channel where the request originated as a data payload. | `request`
 
 ```json
