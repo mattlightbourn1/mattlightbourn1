@@ -39,6 +39,7 @@ Object Property | Property Type | Description | Originating Operation
 ------ | -------- | -------- | --------------------
 `distributor_details` | `object` | This contains information about the intermediary organisation transacting with the insurer and includes what trading platform is being used to originate the request. | `request`
 `policy` | `object` | This contains all policy related objects for this request using [Policy object](#policyObject) | `request`
+`transaction_activity_log` | `array objects` | This contains information about the exchange of information between consumer and insurer. All entries here are added by the insurer including where activity is from the consumer. | `response`
 
 ### <a name="policyObject"></a>Policy object
 
@@ -46,12 +47,12 @@ This is where all information about the policy is contained and it relates to on
 
 Object Property | Property Type | Description | Originating Operation
 ------ | -------- | -------- | --------------------
-`quote_id` | `string` | Text | `response`
-`policy_id` | `string` | Text | `response`
-`opportunity_id` | `string` | Text | `request`
-`thread_id` | `string` | Text | `request`
-`quote_number` | `string` | Text | `response`
-`policy_number` | `string` | Text | `response`
+`quote_id` | `string` | This is the system generated unique identifier related to a quote after it has been delivered back to the requestor. | `response`
+`policy_id` | `string` | This is the system generated unique identifier related to a policy after it has been bound. It relates to the `policy_number` | `response`
+`opportunity_id` | `string` | This is to group the requests and responses into an opportunity. | `request`
+`thread_id` | `string` | A thread is a branch of an opportunity, where there may be different quotes requested for the same broker client where only one of them has the potential of being bound. | `request`
+`quote_number` | `string` | The quote number is the human readable reference used between a consumer and their client and for all non system to system quote related engagement. | `response`
+`policy_number` | `string` | The policy number is the human readable reference used between a consumer and their client and for all non system to system policy related engagement. | `response`
 `policy_status` | `string` | This is the status of the entire policy based upon the statuses of each section and situation within the request | `response`
 `parties` | `object` | Represents all parties related to the processing of the request including the insured, the broker agent and interested parties using [Parties object](#partiesObject) | `request`
 `policy_dates` | `object` | Text using [Policy Dates object](#policyDatesObject) | `request`
@@ -62,8 +63,8 @@ Object Property | Property Type | Description | Originating Operation
 `endorsement_clauses` | `array objects` | This is where an underwriter imposed or automated endorsement clauses have been added to a request based upon the outcome of processing a quote request using [Endorsement Clauses object](#endorsementClausesObject). | `response`
 `policy_notes` | `array objects` | This is where a consumer can add notes which are either to be added to the schedule or is simply information for the benefit of the consumer or underwriter only using [Notes](#notesObject). | `request`
 `lines_of_business` | `array objects` | Each request can have one or more lines of business. Each will have details of the business, related sections and situations using [Lines of Business object](#linesOfBusinessObject). | `request`
-`policy_changes` | `object` | This is used when an alteration or cancellation is done to an existing policy using [Policy Changes object](#policyChangesObject | `request`
-`policy_remarks` | `object` | Text | `request` `response`
+`policy_changes` | `object` | This is used when an alteration or cancellation is done to an existing policy using [Policy Changes object](#policyChangesObject) | `request`
+`policy_remarks` | `object` | Two way information regarding benefits, conditions, declined reasons and consumer originated remarks along with attachments using [Policy Remarks object](#policyRemarksObject). | `request` `response`
 
 ### <a name="partiesObject"></a>Parties object
 Represents all parties related to the processing of the request including the insured, the broker agent and interested parties.
@@ -149,7 +150,16 @@ Object Property | Property Type |  Description | Originating Operation
 `benefits` | `array string` | Where a response includes quoted sections, for each, there may be some benefits listed | `response`
 `conditions` | `array string` | One or mode conditions imposed automatically or from an underwriter. | `response`
 `decline` | `string` | Where a response concludes that the quote request was **DECLINED** supplies additional information. | `response`
-`remark` | `array objects` | Used to add remarks during the lifecycle of the quote including one or many attached files. | `request`
+`remark` | `array objects` | Used to add remarks during the lifecycle of the quote including one or many attached files using [Policy Remark object](#policyRemarkObject). | `request`
+
+### <a name="policyRemarkObject"></a>Policy Remark object
+This is utilised in both the `REQUEST` and `RESPONSE` and contains objects specific to each.
+
+Object Property | Property Type |  Description | Originating Operation
+------ | ------ |-------- | --------------------
+`attachments` | `array objects` | Add one or more file path and category for one or more attachments | `request`
+`description` | `string` | Add a description (subject) for referral and supplying of additional information to underwriter. | `request`
+`message` | `array objects` | Include a message between the consumer and the insurer to provide reason for referral, supplying additional information or commentary around attached files/ | `request`
 
 ### <a name="linesOfBusinessObject"></a>Lines of Business object
 This is where an entire business related to the policy is defined.
