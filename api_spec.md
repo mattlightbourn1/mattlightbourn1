@@ -193,6 +193,20 @@ Object Property | Property Type |  Description | Originating Operation
 `coverage_extensions` | `array objects` | This is for future coverages which has a total exposure value as the sum of all related coverage extensions. | `request`
 `specified_items` | `array objects` | This is for listing specified item where the total exposure value as the sum of all related specified items using [Specified Items](#specifiedItemsObject). | `request`
 
+### Coverage Example
+```json
+          "coverage_category": "ADDITIONAL_BENEFIT",
+          "coverage_type": "WORKS_OF_ART",
+          "coverage_selected": true,
+          "coverage_details": "Building Cover",
+          "coverage_qty": 1,
+          "coverage_value": 5000,
+          "value_type": "CURRENCY",
+          "basis_of_settlement" : "REPLACEMENT",
+          "exposure_type": "SUM_INSURED",
+          "coverage_extensions": []
+```
+
 ### <a name="acceptanceMessagesObject"></a>Acceptance Messages object
 This is where any issues were found when processing a quote request.
 
