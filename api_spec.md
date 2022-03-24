@@ -298,6 +298,42 @@ Object Property | Property Type |  Description | Originating Operation
 `total_premium` | `integer` | Short description of the endorsement clause. | `response`
 `type` | `string` | This is the type of premium specified using [Premium Type Options](#premiumTypeOptions). | `response`
 
+```json
+    "section_premiums": [
+	{
+	    "stamp_duty": 29.74,
+	    "total_premium": 344.65,
+	    "base_premium": 286.27,
+	    "gst": 28.64,
+	    "commission": 0.0,
+	    "commission_gst": 0.0,
+	    "type": "TRANSACTION",
+	    "esl": 0.0
+	},
+	{
+	    "stamp_duty": 0.0,
+	    "total_premium": 0.0,
+	    "base_premium": 0.0,
+	    "gst": 0.0,
+	    "commission": 0.0,
+	    "commission_gst": 0.0,
+	    "type": "CURRENT_TERM",
+	    "esl": 0.0
+	},
+	{
+	    "stamp_duty": 29.74,
+	    "total_premium": 344.65,
+	    "base_premium": 286.27,
+	    "gst": 28.64,
+	    "commission": 0.0,
+	    "commission_gst": 0.0,
+	    "type": "ANNUALISED",
+	    "esl": 0.0
+	}
+    ]
+```
+
+
 ## Reference Data
 
 ### <a name="natureOfInterestOptions"></a>Natures of Interest
