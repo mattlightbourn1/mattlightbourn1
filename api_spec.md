@@ -54,17 +54,17 @@ Object Property | Property Type | Instructions | Mandatory
 `opportunity_id` | `string` | For a new business quote request, each start as a new opportunity with a unique UUID identifer. This is used for all subsequent transactions throughout the lifecycle until finally bound and closed or used to notify loss. | YES
 `thread_id` | `string` | This is specific to the lifecycle of a quote with a unique UUID identifier within the opportunity. It is possible to create additional threads for different scenarios. Only one thread within an opportunity will eventually be bound and all other threads considered redundant. | YES
 `distributor_details` | `object` | This identifies who is interacting with the insurer and identifies the trading platform channel being used as described using [Distributor Details object] (#distributorDetailsObject). | YES
-`parties.party[0]` | `object` | **PRIMARY_POLICY_HOLDER** party is the minimum party requirements for all transactions using [Party object](#partyObject). | YES
-`parties.party[1]` | `object` | **BROKER_AGENT** party is to identify the individual related to the broker as specified in Distributor Details using [Party object](#partyObject). | NO
-`parties.party[2]` | `object` | **INTERESTED_PARTY** party is to identify the individual related to the broker as specified in Distributor Details using [Party object](#partyObject). | NO
+`parties.party[n]` | `object` | **PRIMARY_POLICY_HOLDER** party is the minimum party requirements for all transactions using [Party object](#partyObject). | YES
+`parties.party[n]` | `object` | **BROKER_AGENT** party is to identify the individual related to the broker as specified in Distributor Details using [Party object](#partyObject). | NO
+`parties.party[n]` | `object` | **INTERESTED_PARTY** party is to identify the individual related to the broker as specified in Distributor Details using [Party object](#partyObject). | NO
 `parties.party_history` | `object` | This includes party disclosures and information related to claims within the last 3 years. | YES
 `policy_dates` | `object` | using [Policy Dates object](#policyDatesObject). | YES
 `policy_notes` | `array objects` | Text using [Notes object](#notesObject). | NO
-`lines_of_business` | `object properties` | Specifically `line_of_business_type` and then the following objects: | YES
+`lines_of_business[n]` | `object properties` | Specifically `line_of_business_type` and then the following objects: | YES
 `...business_details` | `object` | This contains all business operation based information which has variable content depending on they types of sections and coverages being requested. For more information on what is used where, see  [Business Details object](#businessDetailsObject) | YES
 `...business_characteristics` | `array objects` | This contains all business operation based information which has variable content depending on they types of sections and coverages being requested. For more information on what is used where, see [Business Characteristics object](#businessCharactersisticsObject) for more info. | NO
-`...sections` | `array objects` | This is for any non-situation based sections and related coverages to be listed using [Section object](#sectionObject). | NO
-`...situations` | `array objects` | This is to be used to add one or more situations to a quote request and policy which has a physical location, its own set of parameters, sections, coverages and characteristics about each situation's usage. | NO
+`...sections[n]` | `array objects` | This is for any non-situation based sections and related coverages to be listed using [Section object](#sectionObject). Policy level sections include **LIABILITY, TAX, EMPLOYEE DISHONESTY**| NO
+`...situations[n]` | `array objects` | This is to be used to add one or more situations to a quote request and policy which has a physical location, its own set of parameters, sections, coverages and characteristics about each situation's usage using [Situation object](#situationObject). | NO
 
 ## <a name="updateQuote"></a>Update Quote
 
@@ -410,8 +410,9 @@ Object Property | Property Type |  Description | Originating Operation
 `situation_quote_status` | `string` | Text | `response`
 `situation_status` | `string` | Used to identify whether the situation was already **EXISTING** or **ADDED** or **REMOVED** from the policy. | `request`
 `situation_occupation` | `object` | Identifies what primary occupation is performed at this situation. | `request`
-`situation_location`
+`situation_location` | `object` | This includes the physical address, location and details about the building like how it is constructed, utilised and used. | `request`
 `situationn_characteristics` | `array object` | This is to capture variable information about a situation in addition to the core. For example, acceptance questions are to be captured using data driven objects where the maintenance of what can be supplied in a payload is done through configuration. This is using [Characteristics object](#characteristicsObject). | `request`
+`sections[n]` | `array objects` | This is for any situation based sections and related coverages to be listed using [Section object](#sectionObject). Situation level sections include **PROPERTY, THEFT, MONEY, MACHINARY BREAKDOWN**| NO
 `acceptance_messages` | `array objects` | This is where any section related issues were found when processing a quote request using [Acceptance Messages object](#acceptanceMessagesObject) | `response`
 `endorsement_clauses` | `array objects` | This is where an underwriter imposed or automated endorsement clauses have been added to a request based upon the outcome of processing a quote request using [Endorsement Clauses object](#endorsementClausesObject). | `response`
 `situation_notes` | `array objects` | This is for consumer added notes using [Notes](#notesObject). | `request`
