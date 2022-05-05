@@ -44,6 +44,27 @@ updateQuote | New Business | /quotes/**{quoteId}** | updateQuoteForBusinessPackP
 updateQuote | Alteration | /policies/**{policyId}**/policy-changes/**{quoteId}** | updateAlterationForBusinessPackProduct | PUT | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/policy-changes/{quoteId}/
 updateQuote | Cancellation | /policies/**{policyId}**/cancellations/**{quoteId}** | updateCancellationForBusinessPackProduct | PUT | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/cancellations/{quoteId}/
 
+# Second round workflow
+
+```mermaid
+  flowchart LR;
+      classDef black color:#fff,fill:#000;
+      classDef green color:#022e1f,fill:#00f500;
+      B[quoteResponse_Quoted]--Refer-->D[referRequest]:::green;
+      E[quoteResponse_Refer]--Refer-->D;
+      F[quoteResponse_Declined]--Refer-->D;
+      D--Quoted-->W[quoteResponse_Quoted];
+      D--Conditional-->X[quoteResponse_Conditional];
+      D--AdditionalInfo-->Y[quoteResponse_AdditionalInfo];
+      D--Declined-->Z[quoteResponse_Declined];
+      W--Bind-->C[bindRequest]:::green;
+      W--Lost-->L[notifyLoss]:::green;
+      X--Update-->H[updateQuote]:::green;
+      Y--Supply-->A[supplyInfo]:::green;
+      Z-->J[abandon]:::black;
+      Y-->J[abandon]:::black;
+```
+
 ### <a name="documentIdentifiers"></a>Document Identifiers
 These are the identifiers that allow you to identify an opportunity, thread, quote and policy.
 
@@ -61,6 +82,31 @@ Object Property | Property Type | Description | Originating Operation
 :------ | :-------- | :-------- | :--------------------
 `X-Iag-Correlation-Id` | `string` | Used to tie together request and response messages for async operations. This is unique per request and returned back in the response. | `request`
 `X-B3-GlobalTransactionId` | `string` | This is the unique message identifier for each and every request and response. | `request` `response`
+
+### <a name="messageSenderObject"></a>Message Sender object 
+
+
+### <a name="distributorDetailsObject"></a>Distributor Details object
+This contains information about the intermediary organisation transacting with the insurer and includes what trading platform is being used to originate the request.
+
+Object Property | Property Type | Description | Originating Operation
+:------ | :-------- | :-------- | :--------------------
+`organisation_name` | `string` | This is the broker's organisation name. | `request`
+`office_name` | `string` | This is the broker's organisation's branch or site. | `request`
+`organisation_identifier` | `string` | This is the broker's organisation code. | `request`
+`office_identifier` | `string` | This is the broker's organisation's branch or site code. | `request`
+`trading_platform_channel` | `string` | This is the trading platform's channel where the request originated as a data payload. | `request`
+
+```json
+    "distributor_details": {
+	"office_identifier": "APH_HQ",
+	"office_name": "Office Name",
+	"organisation_identifier": "APH_HQ",
+	"organisation_name": "organisation Name",
+	"trading_platform_channel": "tradingPlatformChannel"
+	}
+```
+
 
 # Parties
 A party is required for each insured and interested party related to the policy. Each party required a unique identifier (UUID) since it is used as a foreign key in the payload to allocate a `party_role` and assigning the `interested_parties` to the policy and/or specific situations.
