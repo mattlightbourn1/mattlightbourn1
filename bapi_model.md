@@ -8,6 +8,41 @@ Created by Matt Lightbourn
 
 This page details a concept data payload for the exchange of data between various internal and external parties within the lifecycle of an insurance quote request right through to when that quote is bound and becomes an active policy. It also then includes any alterations, cancellations and renewals of that policy.
 
+# First round - Workflow from Quote to Close
+The diagram below shows the various operations required from the initial request of a quote through to binding and closing on the happy path. Where there are other additional requests required to change the outcome (example, **referRequest**) these additional paths will be documented using a variation of this workflow.
+```mermaid
+  flowchart LR;
+      A[createQuote]:::green--Quoted-->B[quoteResponse_Quoted];
+      classDef black color:#fff,fill:#000;
+      classDef green color:#022e1f,fill:#00f500;
+      B--Lost-->L[notifyLoss]:::green;
+      B--Bind-->C[bindRequest]:::green;
+      C--Bound-->G[closeRequest]:::green;
+      C-->I[error]:::black;
+      B--Refer-->D[referRequest]:::green;
+      A--Refer-->E[quoteResponse_Refer];
+      A--Declined-->F[quoteResponse_Declined];
+      E-->D;
+      H[updateQuote]:::green--Quoted-->B;
+      H--Refer-->E;
+      H--Declined-->F;
+      F--Refer-->D;
+      F-->J[abandon]:::black;
+```
+## Create Quote
+Request Type | Lifecycle Stage | Endpoint | Operation | Operation Type | URL
+----|----|----|---|---|---
+createQuote | New Business | /quotes | createQuoteForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/quotes
+createQuote | Alteration | /policies/{policyId}/policy-changes | createAlterationForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/policy-changes/
+createQuote | Cancellation | /policies/{policyId}/cancellations/ | createCancellationForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/cancellations/
+
+## Update Quote
+Request Type | Lifecycle Stage | Endpoint | Operation | Operation Type | URL
+----|----|----|---|---|---
+updateQuote | New Business | /quotes/{quoteId} | updateQuoteForBusinessPackProduct | PUT| https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/quotes/{quoteId}
+updateQuote | Alteration | /policies/{policyId}/policy-changes/{quoteId} | updateAlterationForBusinessPackProduct | PUT | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/policy-changes/{quoteId}/
+updateQuote | Cancellation | /policies/{policyId}/cancellations/{quoteId} | updateCancellationForBusinessPackProduct | PUT | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/cancellations/{quoteId}/
+
 ### <a name="integrationObjects"></a>Integration Related Data Objects
 
 These are the identifiers as used in the **header** and url that control how the interaction between consumer and insurer work and in the context of specific quotes or policies.
@@ -32,74 +67,4 @@ Operation | Type | Description
 
 # Operation based Payloads
 
-## New Business Process
-```mermaid
-  graph TD;
-      createQuoteForBusinessPackProduct-->QuoteResponse_Quoted;
-      createQuoteForBusinessPackProduct-->QuoteResponse_Refer;
-      createQuoteForBusinessPackProduct-->QuoteResponse_Declined;
-      QuoteResponse_Quoted-->updateQuoteForBusinessPackProduct;
-      updateQuoteForBusinessPackProduct-->QuoteResponse_Quoted;
-      QuoteResponse_Refer-->createReferralForBusinessPackProduct;
-      createReferralForBusinessPackProduct-->QuoteResponse_Quoted;
-      createReferralForBusinessPackProduct-->QuoteResponse_Declined;
-      QuoteResponse_Quoted-->createBindForBusinessPackProduct;
-      createBindForBusinessPackProduct-->BindResponse;
-      BindResponse-->closeBusinessPackProduct;
-      closeBusinessPackProduct-->CloseResponse;
-      QuoteResponse_Quoted-->notifyLossForBusinessPackProduct
-```
-## New Business Process
-```mermaid
-  graph TD;
-      createQuoteForBusinessPackProduct-->QuoteResponse;
-      createAlterationForBusinessPackProduct-->QuoteResponse;
-      createCancellationForBusinessPackProduct-->QuoteResponse;
-      QuoteResponse-->updateQuoteForBusinessPackProduct;
-      updateQuoteForBusinessPackProduct-->QuoteResponse;
-      QuoteResponse-->createReferralForBusinessPackProduct;
-      QuoteResponse-->createBindForBusinessPackProduct;
-      createBindForBusinessPackProduct-->BindResponse;
-      BindResponse-->closeBusinessPackProduct;
-      closeBusinessPackProduct-->CloseResponse;
-      QuoteResponse-->notifyLossForBusinessPackProduct
-```
 
-# Testing Sequence diagram
-
-```mermaid
-sequenceDiagram
-    participant broker
-    participant insurer
-    participant underwriter
-    broker->>insurer: New Business Quote Request
-    insurer->>broker: Quote Response - Quoted
-    broker->>insurer: Bind Request
-    insurer->>broker: Bind Response
-```
-# Flowchart
-```mermaid
-  flowchart LR;
-      A[CI MULTI CHAPTCHA]-->B{Select captcha service by developer?};
-      classDef green color:#022e1f,fill:#00f500;
-      classDef red color:#022e1f,fill:#f11111;
-      classDef white color:#022e1f,fill:#fff;
-      classDef black color:#fff,fill:#000;
-      B--YES-->C[How to use?]:::green;
-      
-      C-->U[I choose recaptcha.]:::green;
-      U--Views-->Q["echo CIMC_JS('recaptcha');\n echo CIMC_HTML(['captcha_name'=>'recaptcha']);"]:::green;
-      U--Controller-->W["CIMC_RULE('recaptcha');"]:::green;
-      
-      C-->I[I choose arcaptcha.]:::white;
-      I--Views-->O["echo CIMC_JS('arcaptcha');\n echo CIMC_HTML(['captcha_name'=>'arcaptcha']);"]:::white;
-      I--Controller-->P["CIMC_RULE('arcaptcha');"]:::white;
-      
-      C-->X[I choose bibot.]:::red;
-      X--Views-->V["echo CIMC_JS('bibot');\n echo CIMC_HTML(['captcha_name'=>'bibot']);"]:::red;
-      X--Controller-->N["CIMC_RULE('bibot');"]:::red;
-      
-      B--NO-->D[How to use?]:::black;
-      D---Views:::black-->F["echo CIMC_JS('randomcaptcha');\n echo CIMC_HTML(['captcha_name'=>'randomcaptcha']);"]:::black; 
-      D---Controller:::black-->T["CIMC_RULE('archaptcha,recaptcha,bibot');"]:::black;
-```
