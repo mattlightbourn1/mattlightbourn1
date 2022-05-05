@@ -44,6 +44,24 @@ updateQuote | New Business | /quotes/**{quoteId}** | updateQuoteForBusinessPackP
 updateQuote | Alteration | /policies/**{policyId}**/policy-changes/**{quoteId}** | updateAlterationForBusinessPackProduct | PUT | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/policy-changes/{quoteId}/
 updateQuote | Cancellation | /policies/**{policyId}**/cancellations/**{quoteId}** | updateCancellationForBusinessPackProduct | PUT | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/cancellations/{quoteId}/
 
+### <a name="documentIdentifiers"></a>Document Identifiers
+These are the identifiers that allow you to identify an opportunity, thread, quote and policy.
+
+Object Property | Property Type | Description | Originating Operation
+:------ | :-------- | :-------- | :--------------------
+`quoteid` | `string` | The quote identifier is used in the url for any update quote operations for new business, alteration and cancel. When a quote requires an update, the `quote_id` from [Policy object](#policyObject) will be required. | `request`
+`policyid` | `string` | The policy identifier is used in the url for close after a bind has successfully produced a policy from a quote. When a policy lifecycle needs to close, the `policy_id` from [Policy object](#policyObject) will be required. | `request`
+`opportunity_id`
+`thread_id`
+
+### <a name="integrationObjects"></a>Integration Related Identifiers
+These are the identifiers as used in the **header** and url that control how the interaction between consumer and insurer work.
+
+Object Property | Property Type | Description | Originating Operation
+:------ | :-------- | :-------- | :--------------------
+`X-Iag-Correlation-Id` | `string` | Used to tie together request and response messages for async operations. This is unique per request and returned back in the response. | `request`
+`X-B3-GlobalTransactionId` | `string` | This is the unique message identifier for each and every request and response. | `request` `response`
+
 # Parties
 A party is required for each insured and interested party related to the policy. Each party required a unique identifier (UUID) since it is used as a foreign key in the payload to allocate a `party_role` and assigning the `interested_parties` to the policy and/or specific situations.
 
@@ -150,28 +168,8 @@ erDiagram
     }
 ```
 
-### <a name="integrationObjects"></a>Integration Related Data Objects
 
-These are the identifiers as used in the **header** and url that control how the interaction between consumer and insurer work and in the context of specific quotes or policies.
 
-Object Property | Property Type | Description | Originating Operation
-:------ | :-------- | :-------- | :--------------------
-`X-Iag-Correlation-Id` | `string` | Used to tie together request and response messages for async operations. This is unique per request and returned back in the response. | `request`
-`X-B3-GlobalTransactionId` | `string` | This is the unique message identifier for each and every request and response. | `request` `response`
-`quoteid` | `string` | The quote identifier is used in the url for any update quote operations for new business, alteration and cancel. When a quote requires an update, the `quote_id` from [Policy object](#policyObject) will be required. | `request`
-`policyid` | `string` | The policy identifier is used in the url for close after a bind has successfully produced a policy from a quote. When a policy lifecycle needs to close, the `policy_id` from [Policy object](#policyObject) will be required. | `request`
 
-### <a name="apiOperations"></a>Supported API Operations
-
-The API comes with the below standard operations
-
-Operation | Type | Description
------- | -------- | --------
-`QuoteRequest` | `POST` | Create a New Business Quote Request using Quote Request](#quoteRequest)
-`UpdateQuote` | `PUT` | Referencing an existing `quoteid` add, remove or change the content of the original quote request.
-`BindQuote` | `PUT` | Referencing an existing `quoteid` commit to making a quote into a policy with a bind request.
-`CloseCycleRequest` | `PUT` | Once a quote has been a policy, the policy schedule is to be attached the request and referencing the `opportunity_id` in order to complete the request lifecycle.
-
-# Operation based Payloads
 
 
