@@ -33,15 +33,109 @@ The diagram below shows the various operations required from the initial request
 Request Type | Lifecycle Stage | Endpoint | Operation | Operation Type | URL
 ----|----|----|---|---|---
 createQuote | New Business | /quotes | createQuoteForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/quotes
-createQuote | Alteration | /policies/{policyId}/policy-changes | createAlterationForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/policy-changes/
-createQuote | Cancellation | /policies/{policyId}/cancellations/ | createCancellationForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/cancellations/
+createQuote | Alteration | /policies/**{policyId}**/policy-changes | createAlterationForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/policy-changes/
+createQuote | Cancellation | /policies/**{policyId}**/cancellations/ | createCancellationForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/cancellations/
 
 ## Update Quote
 Request Type | Lifecycle Stage | Endpoint | Operation | Operation Type | URL
 ----|----|----|---|---|---
-updateQuote | New Business | /quotes/{quoteId} | updateQuoteForBusinessPackProduct | PUT| https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/quotes/{quoteId}
-updateQuote | Alteration | /policies/{policyId}/policy-changes/{quoteId} | updateAlterationForBusinessPackProduct | PUT | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/policy-changes/{quoteId}/
-updateQuote | Cancellation | /policies/{policyId}/cancellations/{quoteId} | updateCancellationForBusinessPackProduct | PUT | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/cancellations/{quoteId}/
+updateQuote | New Business | /quotes/**{quoteId}** | updateQuoteForBusinessPackProduct | PUT| https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/quotes/{quoteId}
+updateQuote | Alteration | /policies/**{policyId}**/policy-changes/**{quoteId}** | updateAlterationForBusinessPackProduct | PUT | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/policy-changes/{quoteId}/
+updateQuote | Cancellation | /policies/**{policyId}**/cancellations/**{quoteId}** | updateCancellationForBusinessPackProduct | PUT | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/cancellations/{quoteId}/
+
+# Parties
+A party is required for each insured and interested party related to the policy. Each party required a unique identifier (UUID) since it is used as a foreign key in the payload to allocate a `party_role` and assigning the `interested_parties` to the policy and/or specific situations.
+
+In addition to defining the various parties, this is also where `party_history_disclosures` are to be supplied. Where there have been claims within the last three years, for each claim you can supply information.
+```mermaid
+erDiagram
+    parties ||--|{ organisations : contains
+    organisations ||--|{ party : contains
+    party {
+        string party_id
+    }
+    party ||--|{ addresses : contains
+    addresses {
+        string building_name
+        string address_line1
+        string address_line2
+        string locality_name
+        string city
+        string state
+        string country
+    }
+    addresses ||--|| geo_location : contains
+    geo_location {
+        string gnaf_pid
+        int latitude
+        int longitude
+    }
+    party ||--|{ email_contacts : contains
+    email_contacts {
+        string email_address
+    }
+    party ||--|{ names : contains
+    names {
+        string name
+        string type
+    }
+    party ||--|{ phone_contacts : contains
+    phone_contacts {
+        string area_code
+        string number
+        string type
+    }    
+    parties ||--|{ party_roles : contains
+    party ||--|{ registered_numbers : contains
+    registered_numbers {
+        string number
+        string type
+    }
+    party_roles {
+        string party_id
+        string party_role
+    }
+    parties ||--|| party_history_disclosures : contains
+    party_history_disclosures ||--|| bankruptcy : contains
+    bankruptcy {
+        string description
+        string declared_bankrupt
+    }
+    bankruptcy ||--|| details : contains
+    details {
+        string description
+    }
+    details ||--|| date : contains
+    date {
+        int day
+        int month
+        int year
+    }
+    party_history_disclosures ||--|| civil_offence_or_pecuniary_penalty : contains
+    civil_offence_or_pecuniary_penalty {
+        string description
+        string liability_of_penalty
+    }
+    civil_offence_or_pecuniary_penalty ||--|| details : contains
+    party_history_disclosures ||--|| criminal_conviction : contains
+    criminal_conviction {
+        string description
+        string convicted_for_offence
+    }
+    criminal_conviction ||--|| details : contains
+    party_history_disclosures ||--|| claims_history : contains
+    claims_history {
+        string claims_made_in_last_three_years
+    }
+    claims_history ||--|{ claims_last_three_years : contains
+    claims_last_three_years {
+        int claim_amount
+        string date_of_loss
+        string description
+        string preventive_or_corrective_action
+        string sections
+    }
+```
 
 ### <a name="integrationObjects"></a>Integration Related Data Objects
 
