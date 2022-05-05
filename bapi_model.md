@@ -63,6 +63,7 @@ These are the steps beyond the first round of workflow where the broker submits 
       W--Lost-->L[notifyLoss]:::green;
       X--Update-->H[updateQuote]:::green;
       Y--Supply-->A[supplyInfo]:::green;
+      A-->K[quoteResponse_???];
       Z-->J[abandon]:::black;
       Y-->J[abandon]:::black;
 ```
@@ -100,15 +101,18 @@ Object Property | Property Type | Description | Originating Operation
 `trading_platform_channel` | `string` | This is the trading platform's channel where the request originated as a data payload. | `request`
 
 ```json
-    "distributor_details": {
-	"office_identifier": "APH_HQ",
-	"office_name": "Office Name",
-	"organisation_identifier": "APH_HQ",
-	"organisation_name": "organisation Name",
-	"trading_platform_channel": "tradingPlatformChannel"
-	}
+  "distributor_details": {
+    "organisation_details": {
+      "office": {
+        "office_identifier": "Melbourne",
+        "office_name": "Melbourne Office"
+      },
+      "organisation_identifier": "INTERRISK",
+      "organisation_name": "Broker One Australia Pty Ltd"
+    },
+    "trading_platform_channel": "BROKER1_CW"
+  }
 ```
-
 
 # Parties
 A party is required for each insured and interested party related to the policy. Each party required a unique identifier (UUID) since it is used as a foreign key in the payload to allocate a `party_role` and assigning the `interested_parties` to the policy and/or specific situations.
