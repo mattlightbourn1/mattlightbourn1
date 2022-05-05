@@ -8,7 +8,7 @@ Created by Matt Lightbourn
 
 This page details a concept data payload for the exchange of data between various internal and external parties within the lifecycle of an insurance quote request right through to when that quote is bound and becomes an active policy. It also then includes any alterations, cancellations and renewals of that policy.
 
-# First round - Workflow from Quote to an Insurer Decision
+# First request based workflow - Create and update quote requests to bind and close
 The diagram below shows the various operations required from the initial request of a quote through to binding and closing on the happy path. Where there are other additional requests required to change the outcome (example, **referRequest**) these additional paths will be documented using a variation of this workflow. 
 ```mermaid
   flowchart LR;
@@ -44,8 +44,8 @@ updateQuote | New Business | /quotes/**{quoteId}** | updateQuoteForBusinessPackP
 updateQuote | Alteration | /policies/**{policyId}**/policy-changes/**{quoteId}** | updateAlterationForBusinessPackProduct | PUT | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/policy-changes/{quoteId}/
 updateQuote | Cancellation | /policies/**{policyId}**/cancellations/**{quoteId}** | updateCancellationForBusinessPackProduct | PUT | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/cancellations/{quoteId}/
 
-# Second round workflow
-
+# Second Request based workflow - Refer and supply additional info to bind and close
+These are the steps beyond the first round of workflow where the broker submits a new related request off the back of a response from the insurer. Note, for supply additional information, you will be expecting back a new quoteResponse_...... of some sort. The next steps are articulated in both the first and second round of workflow.
 ```mermaid
   flowchart LR;
       classDef black color:#fff,fill:#000;
@@ -58,6 +58,8 @@ updateQuote | Cancellation | /policies/**{policyId}**/cancellations/**{quoteId}*
       D--AdditionalInfo-->Y[quoteResponse_AdditionalInfo];
       D--Declined-->Z[quoteResponse_Declined];
       W--Bind-->C[bindRequest]:::green;
+      C--Bound-->G[closeRequest]:::green;
+      C-->I[error]:::black;
       W--Lost-->L[notifyLoss]:::green;
       X--Update-->H[updateQuote]:::green;
       Y--Supply-->A[supplyInfo]:::green;
