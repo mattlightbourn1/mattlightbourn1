@@ -32,23 +32,40 @@ Operation | Type | Description
 
 # Operation based Payloads
 
-## Happy Path Process
+## New Business Process
 ```mermaid
   graph TD;
-      NewBusiness-->QuoteRequest;
-      Alteration-->QuoteRequest;
-      Cancellation-->QuoteRequest;
-      QuoteRequest-->QuoteResponse;
-      QuoteResponse-->UpdateQuote;
-      UpdateQuote-->QuoteResponse;
-      QuoteResponse-->BindRequest;
-      BindRequest-->BindResponse;
-      BindResponse-->CloseRequest;
-      CloseRequest-->CloseResponse;
-      QuoteResponse-->NotifyLoss
+      createQuoteForBusinessPackProduct-->QuoteResponse_Quoted;
+      createQuoteForBusinessPackProduct-->QuoteResponse_Refer;
+      createQuoteForBusinessPackProduct-->QuoteResponse_Declined;
+      QuoteResponse_Quoted-->updateQuoteForBusinessPackProduct;
+      updateQuoteForBusinessPackProduct-->QuoteResponse_Quoted;
+      QuoteResponse_Refer-->createReferralForBusinessPackProduct;
+      createReferralForBusinessPackProduct-->QuoteResponse_Quoted;
+      createReferralForBusinessPackProduct-->QuoteResponse_Declined;
+      QuoteResponse_Quoted-->createBindForBusinessPackProduct;
+      createBindForBusinessPackProduct-->BindResponse;
+      BindResponse-->closeBusinessPackProduct;
+      closeBusinessPackProduct-->CloseResponse;
+      QuoteResponse_Quoted-->notifyLossForBusinessPackProduct
+```
+## New Business Process
+```mermaid
+  graph TD;
+      createQuoteForBusinessPackProduct-->QuoteResponse;
+      createAlterationForBusinessPackProduct-->QuoteResponse;
+      createCancellationForBusinessPackProduct-->QuoteResponse;
+      QuoteResponse-->updateQuoteForBusinessPackProduct;
+      updateQuoteForBusinessPackProduct-->QuoteResponse;
+      QuoteResponse-->createReferralForBusinessPackProduct;
+      QuoteResponse-->createBindForBusinessPackProduct;
+      createBindForBusinessPackProduct-->BindResponse;
+      BindResponse-->closeBusinessPackProduct;
+      closeBusinessPackProduct-->CloseResponse;
+      QuoteResponse-->notifyLossForBusinessPackProduct
 ```
 
-# Resting Sequence diagram
+# Testing Sequence diagram
 
 ```mermaid
 sequenceDiagram
