@@ -8,8 +8,8 @@ Created by Matt Lightbourn
 
 This page details a concept data payload for the exchange of data between various internal and external parties within the lifecycle of an insurance quote request right through to when that quote is bound and becomes an active policy. It also then includes any alterations, cancellations and renewals of that policy.
 
-# First round - Workflow from Quote to Close
-The diagram below shows the various operations required from the initial request of a quote through to binding and closing on the happy path. Where there are other additional requests required to change the outcome (example, **referRequest**) these additional paths will be documented using a variation of this workflow.
+# First round - Workflow from Quote to an Insurer Decision
+The diagram below shows the various operations required from the initial request of a quote through to binding and closing on the happy path. Where there are other additional requests required to change the outcome (example, **referRequest**) these additional paths will be documented using a variation of this workflow. 
 ```mermaid
   flowchart LR;
       A[createQuote]:::green--Quoted-->B[quoteResponse_Quoted];
@@ -30,6 +30,7 @@ The diagram below shows the various operations required from the initial request
       F-->J[abandon]:::black;
 ```
 ## Create Quote
+The beginning of a policy lifecycle starts with the creating of a quote in the context of new business, alteration, cancellation and renewal. The difference will be in whether it is related to an existing `policy` or `quote`. Each new quote is the start of a new **opportunity** along with the first **thread**.
 Request Type | Lifecycle Stage | Endpoint | Operation | Operation Type | URL
 ----|----|----|---|---|---
 createQuote | New Business | /quotes | createQuoteForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/quotes
@@ -93,7 +94,7 @@ erDiagram
     }
     party_roles {
         string party_id
-        string party_role
+        string role
     }
     parties ||--|| party_history_disclosures : contains
     party_history_disclosures ||--|| bankruptcy : contains
@@ -133,6 +134,18 @@ erDiagram
         string date_of_loss
         string description
         string preventive_or_corrective_action
+        string sections
+    }
+    line_of_businesses ||--|| commercial_operations : contains
+    line_of_businesses ||--|{ commercial_situations : contains
+    commercial_operations ||--|| interested_parties : contains
+    commercial_situations ||--|| interested_parties : contains
+    commercial_situations {
+        string asset_id
+    }
+    interested_parties {
+        string nature_of_interest
+        string party_id
         string sections
     }
 ```
