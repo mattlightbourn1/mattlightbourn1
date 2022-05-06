@@ -29,7 +29,9 @@ The diagram below shows the various operations required from the initial request
       F--Refer-->D;
       F-->J[abandon]:::black;
 ```
-## Create Quote
+## New Quote Lifecycle Requests
+
+### Create Quote
 The beginning of a policy lifecycle starts with the creating of a quote in the context of new business, alteration, cancellation and renewal. The difference will be in whether it is related to an existing `policy` or `quote`. Each new quote is the start of a new **opportunity** along with the first **thread**.
 Request Type | Lifecycle Stage | Endpoint | Operation | Operation Type | URL
 ----|----|----|---|---|---
@@ -37,12 +39,26 @@ createQuote | New Business | /quotes | createQuoteForBusinessPackProduct | POST 
 createQuote | Alteration | /policies/**{policyId}**/policy-changes | createAlterationForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/policy-changes/
 createQuote | Cancellation | /policies/**{policyId}**/cancellations/ | createCancellationForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/cancellations/
 
-## Update Quote
+### Update Quote
+A requestor can resubmit request based upon a previously submitted quote as an update. This may then impact the insurer response after processing. An updated quote will be received as a response and will now have a new `quote_id` and `quote_number`. Where there are more than one quote in a state of **QUOTED**, either of these can be bound. 
 Request Type | Lifecycle Stage | Endpoint | Operation | Operation Type | URL
 ----|----|----|---|---|---
 updateQuote | New Business | /quotes/**{quoteId}** | updateQuoteForBusinessPackProduct | PUT| https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/quotes/{quoteId}
 updateQuote | Alteration | /policies/**{policyId}**/policy-changes/**{quoteId}** | updateAlterationForBusinessPackProduct | PUT | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/policy-changes/{quoteId}/
 updateQuote | Cancellation | /policies/**{policyId}**/cancellations/**{quoteId}** | updateCancellationForBusinessPackProduct | PUT | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/policies/{policyId}/cancellations/{quoteId}/
+
+## Operations based upon Quote Responses
+
+## Bind and Close
+If a quote is in a `QUOTED` state then it can be bound and the opportunity closed as long as the quote has not expired.
+Request Type | Lifecycle Stage | Endpoint | Operation | Operation Type | URL
+----|----|----|---|---|---
+bindRequest | QUOTED | /bind-and-issue | bindAndIssueForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/bind-and-issue/
+closeRequest | BOUND | /close | closeBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/close/
+
+## Notify Loss
+
+Refer
 
 # Second Request based workflow - Refer and supply additional info to bind and close
 These are the steps beyond the first round of workflow where the broker submits a new related request off the back of a response from the insurer. Note, for supply additional information, you will be expecting back a new quoteResponse_...... of some sort. The next steps are articulated in both the first and second round of workflow.
@@ -68,6 +84,11 @@ These are the steps beyond the first round of workflow where the broker submits 
       Y-->J[abandon]:::black;
 ```
 
+## Additional Operations based upon Second Request based workflow
+
+Conditional
+Supply Additional Info
+
 ### <a name="documentIdentifiers"></a>Document Identifiers
 These are the identifiers that allow you to identify an opportunity, thread, quote and policy.
 
@@ -81,13 +102,24 @@ Object Property | Property Type | Description | Originating Operation
 ### <a name="integrationObjects"></a>Integration Related Identifiers
 These are the identifiers as used in the **header** and url that control how the interaction between consumer and insurer work.
 
-Object Property | Property Type | Description | Originating Operation
-:------ | :-------- | :-------- | :--------------------
-`X-Iag-Correlation-Id` | `string` | Used to tie together request and response messages for async operations. This is unique per request and returned back in the response. | `request`
-`X-B3-GlobalTransactionId` | `string` | This is the unique message identifier for each and every request and response. | `request` `response`
+Object Property | Property Type | Validation | Description | Originating Operation
+:------ | :-------- | :-------- | :--- | :--------------------
+`X-Iag-Correlation-Id` | `string` | Mandatory | Used to tie together request and response messages for async operations. This is unique per request and returned back in the response. | `request`
+`X-B3-GlobalTransactionId` | `string` | Mandatory | This is the unique message identifier for each and every request and response. | `request` `response`
 
 ### <a name="messageSenderObject"></a>Message Sender object 
 
+Object Property | Property Type | Validation | Description | Originating Operation
+:------ | :-------- | :-------- | :---- | :--------------------
+`full_name` | `string` | Mandatory | This is the full name of the system operator that submitted the request or is set to Automated system response if a part of the response. This value should originate from the system user profile. | `request` `response`
+`email_address` | `string` | Optional | The email contact details of the system operator. This value should originate from the system user profile. | `request` `response`
+```json
+  "message_sender": {
+    "full_name": "John Smith",
+    "email_address": "js@abc.com.au",
+    "phone_number" : "03 6073000"
+  }
+```
 
 ### <a name="distributorDetailsObject"></a>Distributor Details object
 This contains information about the intermediary organisation transacting with the insurer and includes what trading platform is being used to originate the request.
@@ -102,6 +134,7 @@ Object Property | Property Type | Description | Originating Operation
 
 ```json
   "distributor_details": {
+    "trading_platform_channel": "BROKER1_CW"
     "organisation_details": {
       "office": {
         "office_identifier": "Melbourne",
@@ -110,7 +143,6 @@ Object Property | Property Type | Description | Originating Operation
       "organisation_identifier": "INTERRISK",
       "organisation_name": "Broker One Australia Pty Ltd"
     },
-    "trading_platform_channel": "BROKER1_CW"
   }
 ```
 
@@ -208,8 +240,8 @@ erDiagram
     }
     line_of_businesses ||--|| commercial_operations : contains
     line_of_businesses ||--|{ commercial_situations : contains
-    commercial_operations ||--|| interested_parties : contains
-    commercial_situations ||--|| interested_parties : contains
+    commercial_operations ||--|{ interested_parties : contains
+    commercial_situations ||--|{ interested_parties : contains
     commercial_situations {
         string asset_id
     }
