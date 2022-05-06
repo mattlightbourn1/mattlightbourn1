@@ -254,6 +254,48 @@ erDiagram
 
 
 
+# Payloads
 
+
+## Simplified Bind (with Party ABN update)
+```json
+{
+    "opportunity_id" :  "3aacb472-4f44-4385-96c7-f7605707a5ab",
+    "thread_id" :  "bcf46dab-2ac0-4797-a0fd-65a040e480c1",
+    "quote_id" :  "99a6b43b-7b08-444f-af41-5d337011bcda",
+    "message_sender" : {
+         "full_name" : "John Smith",
+         "email_address" : "js@abc.com.au",
+         "phone_number" : "03 6073000"
+    },
+    "distributor_details" : {
+        "trading_platform_channel" : "AON_CW",
+        "organisation_details" : {
+            "organisation_identifier" : "INTERRISK",
+            "organisation_name" :  "Interrisk Australia Pty Ltd)",
+            "office" : {
+                "office_identifier" : "Melbourne",
+                "office_name" : "Melbourne Office",
+            }
+        }
+    },
+    "policy_dates" : {
+        "message_sent_date" :  "2020-06-30T15:47:55.123+10:00"
+    },
+    "parties" : {
+        "organisations" : [
+            {
+                "party_id" :  "PRTY123",
+                "registered_numbers" : [
+                    {
+                        "number" :  "123 455 678",
+                        "type" : "ABN"
+                    }
+                ]
+            }
+        ]
+    }
+}
+```
 
 
