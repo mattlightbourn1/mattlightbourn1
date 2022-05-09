@@ -198,6 +198,34 @@ There are some [Excesses](#excesses) that the broker can request and then others
 ### Notes
 There is the option to add notes to the policy, situation or section which are either [Printable Note](#printableNote) in the policy schedule or [Non-Printable Note](#nonPrintableNote). 
 
+# Consuming Insurer Response Payloads
+
+## Header
+
+## Body
+
+### Policy Details
+Everything that was originally supplied in a request to the insurer is returned in a `policy_details` wrapper in the same structure as the request payload. As a part of the response, there are additional values to be consumed.
+
+### Identifiers and References
+All responses will include a new `quote_id` for all requests. In order to process additional operations like **updateQuote** and **bindRequest** for example, you will need the quote_id from here to populate the `quoteid` in the header to meet the requirements of those endpoints. 
+
+Where the request was a **bindRequest** the response will include a `policy_id`. This will be used in the header for any **alterationRequest** where there is an existing policy that you wish to apply changes.
+
+For each `id` there will also be a related `number`. Example, `quote_id` will pair with a `quote_number`.
+
+### Response Values
+
+Object Property | Property Type | Description | Located
+:------ | :-------- | :-------- | :--------------------
+`remarks`
+`acceptance_messages`
+`premiums` | `array object` | This is an object which contains a type of premium. In the response, you will received 3 objects in the payload for `TRANSACTION`, `ANNUALISED` and `CURRENT_TERM` even if some contain nothing but zeros. | `policy` `section`
+`excesses`
+`status` | `string` | This is the [Quote Status](#quoteStatus) of the policy, situation or section. | `policy` `situation` `section`
+endorsement_clauses` | `array object` | These endorsement clauses are either automatically added based upon answers to acceptance questions or occupation. They can also be imposed by an underwriter. There are standard ones which have a code with comsumer specific wording (description) or if an underwriter adds an LE81 then this is a free-text  endorsement clause that has been added. | `policy` `situation` `section`
+`transaction_activity_logs`
+
 # Parties
 A party is required for each insured and interested party related to the policy. Each party required a unique identifier (UUID) since it is used as a foreign key in the payload to allocate a `party_role` and assigning the `interested_parties` to the policy and/or specific situations.
 
@@ -793,6 +821,18 @@ The party disclosures are very explicit for all relevant disclosures required fo
 | GENERAL_PROPERTY |
 | EMPLOYEE_DISHONESTY |
 | TAX_INVESTIGATION |
+
+### <a name="quoteStatus"></a>Quote Status
+| Quote STATUS |
+:----
+| QUOTED |
+| DECLINED |
+| REFER |
+| REFERRED |
+| INFORMATION_REQUESTED |
+| INFORMATION_SUPPLIED |
+| BOUND |
+| CLOSED |
 
 # Payload Examples
 
