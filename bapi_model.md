@@ -712,7 +712,7 @@ Using the `party_id` of each interested party, where situation level sections ex
 ```
 ## Party Disclosures
 
-### Claims History
+### <a name="claimsHistory"></a>Claims History
 If `claims_made_in_last_three_years` = true, then for each claim, this is the information to be produced.
 ```json
 {
@@ -748,7 +748,7 @@ Object Property | Property Type | Validation | Description | Originating Operati
 `preventive_or_corrective_action` | `string` | Optional | What actions were taken to prevent this happening in the future. | `request`
 `sections[]` | `array string` | Mandatory | The claim is related to these [Sections](#sections). | `request`
 
-### Party Disclosures
+### <a name="partyDisclosures"></a>Party Disclosures
 The party disclosures are very explicit for all relevant disclosures required for all quote requests.
 ```json
 {
@@ -861,7 +861,7 @@ The party disclosures are very explicit for all relevant disclosures required fo
     }
     }
 ```
-# Situation
+# <a name="situation"></a>Situation
 Below is the structure of a situation which contains information about the location and building. Each situation has its own `asset_id` which must be unique within a payload from any other situations in the payload. For each situation where there is an `interested_party` there is an array for adding the object as previously detailed as a part of **Parties**.
 
 In addition, a situation then has many sections which in turn have various coverages, etc as covered in the next section.
@@ -878,7 +878,7 @@ erDiagram
     location ||--|| geo_location : contains
     commercial_situations ||--|{ interested_parties : contains
 ```
-### Commercial Situation payload example
+### <a name="commercialSituation"></a>Commercial Situation
 The following example shows a single situation.
 ```json
 {
@@ -1013,7 +1013,8 @@ The following example shows a single situation.
           ]
         }
 ```
-### Commercial Operation based section
+### <a name="commercialOperation"></a>Commercial Operation
+This is where we place what we refer to as `policy` level sections into. If there are no sections to add (for example, the quote request is for a `situation` level section only, like PROPERTY) then some of commercial_operation will still exist because it contains the **business details** 
 ```json
 {
         "assets": {
@@ -1091,7 +1092,7 @@ The following example shows a single situation.
       }
 ```
 
-# Section
+# <a name="section"></a>Section
 Each section is explicitly named in the payload and can originate from either `commercial_operations` (for sections like LIABILITY) and `commercial_situations` for sections like PROPERTY).
 
 Each section has its own set of explicitly named coverages which have a variable number of common coverage properties. A coverage in this model represents covers, cover extensions and additional benefits together.
@@ -1121,7 +1122,7 @@ erDiagram
     notes ||--|{ non_printable_notes : contains
     notes ||--|{ printable_notes : contains
 ```
-### Example LIABILITY section
+### <a name="sectionLiability"></a>Section - Liability
 This gives examples of `acceptance` questions, `coverages`, `excesses`, `endorsement_clauses`, `acceptance_messages`. The validation requirements for acceptance questions and sub questions are detailed in the Swagger contract.
 ```json
 {
@@ -1234,7 +1235,7 @@ This gives examples of `acceptance` questions, `coverages`, `excesses`, `endorse
               }
 }
 ```
-## Notes
+## <a name="notes"></a>Notes
 Below is an example of both printable and non-printable notes. Printable notes are ones that will be added to the policy schedule.
 ```json
 {
