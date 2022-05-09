@@ -210,12 +210,33 @@ There are some [Excesses](#excesses) that the broker can request and then others
 There is the option to add notes to the policy, situation or section which are either [Printable Note](#printableNote) in the policy schedule or [Non-Printable Note](#nonPrintableNote). 
 
 ## Additional Values by type of Transaction
+The objects and object properties described above are relevant for New Business, Alteration, Cancellation and (WIP) Renewal. Where there are differences in the type of request, see below.
 
 ### Alteration
+An alteration to an existing policy requires `policyid` in the header and in the **body** you will be required to include an `alteration_description`. When requesting an alteration, we require all `situations` and `sections` that you are removing to exist in the payload with the addition of a flag.
 
-
+In this example, the `liability_asset` has had `selected` set the **false** to indicate it has been removed and `total_loss` is set to **true**.
+```json
+{
+  "liability_asset": {
+    "selected": false,
+    "total_loss": true
+  }
+}
+```
 ### Cancellation
-
+For a cancellation of an existing policy, the header would include `policyid` and the **body** payload would include the following object and related properties. As per the Swagger contract, all properties are mandatory with exception to `cancellation_description` which is optional. There is reference data for [Cancellation Reasons](#cancellationReasons).
+```json
+{
+  "cancellation": {
+    "cancellation_description": "Lorem ipsum dolor sit amet, consectetur",
+    "cancellation_effective_date": "2019-09-30",
+    "cancellation_reason": {
+      "main_reason": "TOTAL LOSS",
+      "sub_reason": "SOLD"
+    }
+  }
+```
 
 # Consuming Insurer Response Payloads
 
