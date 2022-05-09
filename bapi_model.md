@@ -598,7 +598,7 @@ Using the `party_id` of each interested party, where policy level sections exist
    }]
 ```
 ### Assigning Interested Party - Situation Level
-Using the `party_id` of each interested party, where situation level sections exist, assign them a `nature_of_interest` and list the `sections` as per the accepted reference data options for each situation applicable. [Nature of Interest](#natureOfInterest) and [Interested Party Sections](#interestedPartyections)
+Using the `party_id` of each interested party, where situation level sections exist, assign them a `nature_of_interest` and list the `sections` as per the accepted reference data options for each situation applicable. [Nature of Interest](#natureOfInterest) and [Sections](#sections).
 ```json
 "commercial_situations" : [
     {
@@ -613,8 +613,8 @@ Using the `party_id` of each interested party, where situation level sections ex
 ```
 ## Party Disclosures
 
-### Adding Claims History
-
+### Claims History
+If `claims_made_in_last_three_years` = true, then for each claim, this is the information to be produced.
 ```json
 {
     "party_history_disclosures": {
@@ -639,6 +639,15 @@ Using the `party_id` of each interested party, where situation level sections ex
     }
 }
 ```
+Object Property | Property Type | Validation | Description | Originating Operation
+:------ | :-------- | :-------- | :--------- | :-----------
+`claim_amount` | `integer` | Mandatory | The total value of the claim. | `request`
+`date_of_loss.day` | `integer` | Optional | The day of the date when the loss occurred. | `request`
+`date_of_loss.month` | `integer` | Mandatory | The month of the date when the loss occurred. | `request`
+`date_of_loss.year` | `integer` | Mandatory | The year of the date when the loss occurred. | `request`
+`description` | `string` | Mandatory | Description of what happened | `request`
+`preventive_or_corrective_action` | `string` | Optional | What actions were taken to prevent this happening in the future. | `request`
+`sections[]` | `array string` | Mandatory | The claim is related to these [Sections](#sections). | `request`
 
 ### Party Disclosures
 The party disclosures are very explicit for all relevant disclosures required for all quote requests.
@@ -777,7 +786,7 @@ The party disclosures are very explicit for all relevant disclosures required fo
 | LENDOR |
 | OTHER |
 
-### <a name="interestedPartyections"></a>Interested Party Sections
+### <a name="sections"></a>Sections
 | Interested Party Section |
 :----
 | PUBLIC_AND_PRODUCTS_LIABILITY |
