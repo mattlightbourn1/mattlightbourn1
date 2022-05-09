@@ -400,6 +400,15 @@ In order to use this party as insured, there is the need to assign a party role 
 ## Correspondence Preferences
 If the correspondence preference is **broker agent**, then the party can contain any of the following information with a minimum of `party_id`, `email_address` and/or `address` depending on whether `preferred_communication_mode is "EMAIL" or "MAIL". 
 
+```json
+{
+  "correspondence_preference": {
+    "party_id": "BROKER1",
+    "preferred_communication_mode": "EMAIL"
+  }
+}
+```
+
 ## <a name="brokerAgent"></a> Party - Broker Agent
 Payload for a broker agent.
 ```json
