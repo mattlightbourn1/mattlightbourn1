@@ -790,6 +790,12 @@ The party disclosures are very explicit for all relevant disclosures required fo
     }
     }
 ```
+# Situation
+
+
+# Section
+
+
 
 # Reference Data
 
@@ -823,6 +829,8 @@ The party disclosures are very explicit for all relevant disclosures required fo
 | TAX_INVESTIGATION |
 
 ### <a name="quoteStatus"></a>Quote Status
+Quote status is located at various locations in the payload as shown below:
+
 | Quote STATUS |
 :----
 | QUOTED |
