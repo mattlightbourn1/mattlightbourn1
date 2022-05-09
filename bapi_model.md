@@ -174,6 +174,17 @@ Object Property | Property Type | Description | Originating Operation
     },
   }
 ```
+### Policy Dates
+All requests will require `message_sent_date` which is in UTC (zulu) and all other values are variable depending on the type of request. As a part of the response, this will also include `quote_expiry_date` which will be in UTC (zulu).
+```json
+{
+    "policy_dates": {
+      "message_sent_date": "2020-06-30T15:47:55.123+10:00",
+      "term_expiry_date": "2019-08-30",
+      "term_inception_date": "2019-08-30",
+      "transaction_effective_date": "2019-08-30"
+    }
+```
 ### Insured Party
 Every request related to a policy requires at least one insured party. Refer to [Insured Parties](#insuredParties)
 
@@ -791,11 +802,378 @@ The party disclosures are very explicit for all relevant disclosures required fo
     }
 ```
 # Situation
+Below is the structure of a situation which contains information about the location and building. Each situation has its own `asset_id` which must be unique within a payload from any other situations in the payload. For each situation where there is an `interested_party` there is an array for adding the object as previously detailed as a part of **Parties**.
 
+In addition, a situation then has many sections which in turn have various coverages, etc as covered in the next section.
+```mermaid
+erDiagram
+    line_of_businesses ||--|{ commercial_operations : contains
+    line_of_businesses ||--|{ commercial_situations : contains
+    commercial_situations {
+        string asset_id
+        }
+    commercial_situations ||--|| section_name_1 : contains
+    commercial_situations ||--|| building_details : contains
+    commercial_situations ||--|| location : contains
+    location ||--|| geo_location : contains
+    commercial_situations ||--|{ interested_parties : contains
+```
+### Commercial Situation payload example
+The following example shows a single situation.
+```json
+{
+    "line_of_businesses": [
+      {
+        "asset_groups": {
+          "commercial_situations": [
+            {
+              "acceptance_messages": [
+                {
+                  "code": "REF002384B",
+                  "message": "Sum Insured over threshold limit",
+                  "recovery": "Reduce Sum Insured amount to below 1,000,000"
+                }
+              ],
+              "asset_id": "d222cecf-af58-465a-9506-e76807d7d9tf",
+              "building_details": {
+                "combustible_material_located_at_premises": {
+                  "lower_limit": 10,
+                  "upper_limit": 20
+                },
+                "floor_material": "WOOD_OR_TIMBER",
+                "no_of_storeys": 2,
+                "roof_material": "CONCRETE",
+                "wall_material": "BRICK_OR_STONE",
+                "year_constructed": {
+                  "lower_limit": 2000,
+                  "upper_limit": 2001
+                },
+                "year_last_rewired": {
+                  "lower_limit": 2000,
+                  "upper_limit": 2001
+                }
+              },
+              "endorsement_clauses": [
+                {
+                  "code": "LE81",
+                  "description": "This policy does not cover any liability arising out of or in any way connected with pyrotechnic or fireworks displays or shows, or any use of fireworks or pyrotechnic devices",
+                  "title": "Fireworks and Pyrotechnic Display Exclusion"
+                }
+              ],
+              "interested_parties": [
+                {
+                  "nature_of_interest": "First Mortgage",
+                  "party_id": "CLNT1234567890",
+                  "sections": "[{PROPERTY},{LIABILITY}]"
+                }
+              ],
+              "location": {
+                "address_line_1": "181 William Street",
+                "address_line_2": "Melbourne 2000",
+                "building_name": "Tower Two",
+                "country": "AUS",
+                "geo_location": {
+                  "gnaf_pid": "GANSW716798454",
+                  "latitude": -31.7708963,
+                  "longitude": 115.84100663
+                },
+                "locality_name": "Lane Cove",
+                "postcode": "3000",
+                "state": "VIC"
+              },
+              "occupation": {
+                "consumer_occupation_code": "4511",
+                "consumer_occupation_description": "4511",
+                "non_business_related_activities": "4511",
+                "non_business_related_activities_engaged": "NO",
+                "underwriter_occupation_code": "4511",
+                "underwriter_occupation_description": "Executive"
+              },
+              "premises_location": "MAIN_OR_SUBURBAN_STREET",
+
+// sections insert here //
+
+"risk_mitigation": {
+                "fire_protection": {
+                  "fire_alarms": {
+                    "installed": "YES",
+                    "monitored": "YES"
+                  },
+                  "fire_blankets": "YES",
+                  "fire_extinguishers": "YES",
+                  "fire_sprinkler_type": {
+                    "confirms_to_australian_standard": "YES",
+                    "hundred_percentage_coverage": "YES",
+                    "water_supply_sprinkler": "DUAL"
+                  },
+                  "fire_sprinklers_engaged": "YES",
+                  "heat_detectors": {
+                    "installed": "YES",
+                    "monitored": "YES"
+                  },
+                  "hose_reels": "YES",
+                  "premises_connected_to_town_water": "YES",
+                  "smoke_detectors": {
+                    "installed": "YES",
+                    "monitored": "YES"
+                  }
+                },
+                "security_protection": {
+                  "electronic": {
+                    "burglar_alarm": "NO_ALARM",
+                    "electronic_access_on_external_doors": "YES",
+                    "monitored_base_alarm_type": "CLASS_2_DIGITAL_DIALLER_AND_GSM",
+                    "monitored_cctv": "YES"
+                  },
+                  "physical": {
+                    "bollards": "YES",
+                    "external_lighting": "YES",
+                    "ground_level_windows": "ALL_LOCKS_OR_BARS_OR_GRILLES_INCL_FIXED_PLATES",
+                    "locks_on_external_doors": "YES_MAYBE",
+                    "roller_shutters": "YES",
+                    "security_fencing_full_perimeter": "YES",
+                    "watchman_patrols": "YES"
+                  }
+                }
+              },
+              "selected": true,
+              "status": "QUOTED",
+              "tenants": [
+                {
+                  "occupation": {
+                    "consumer_occupation_code": "4511",
+                    "consumer_occupation_description": "4511",
+                    "underwriter_occupation_code": "4511",
+                    "underwriter_occupation_description": "Executive"
+                  },
+                  "occupied_floor_space_percentage": 20
+                }
+              ]
+            }
+          ]
+        }
+```
+### Commercial Operation based section
+```json
+{
+        "assets": {
+          "commercial_operations": [
+            {
+              "business_established_year": 2014,
+              "interested_parties": [
+                {
+                  "nature_of_interest": "First Mortgage",
+                  "party_id": "CLNT1234567890",
+                  "sections": "[{PROPERTY},{LIABILITY}]"
+                }
+              ],
+
+// insert sections here //
+
+              "location": {
+                "address_line_1": "181 William Street",
+                "address_line_2": "Melbourne 2000",
+                "building_name": "Tower Two",
+                "country": "AUS",
+                "geo_location": {
+                  "gnaf_pid": "GANSW716798454",
+                  "latitude": -31.7708963,
+                  "longitude": 115.84100663
+                },
+                "locality_name": "Lane Cove",
+                "postcode": "3000",
+                "state": "VIC"
+              },
+              "occupation": {
+                "consumer_occupation_code": "4511",
+                "consumer_occupation_description": "4511",
+                "non_business_related_activities": "4511",
+                "non_business_related_activities_engaged": "NO",
+                "underwriter_occupation_code": "4511",
+                "underwriter_occupation_description": "Executive"
+              },
+              "recycling_activities": {
+                "recycled_products_engaged": "YES"
+              },
+              "restricted_products": {
+                "description": "store gunpowder.",
+                "explosive_products_engaged": "YES"
+              },
+              "staff_details": [
+                {
+                  "number": 20,
+                  "type": "FULL_TIME"
+                }
+              ],
+              "storage_of_flammable_goods": {
+                "flammable_dangerous_hazardous_goods_engaged": "YES",
+                "quantity": {
+                  "lower_limit": 10,
+                  "upper_limit": 20
+                },
+                "storage_goods_cabinets": "YES",
+                "storage_regulations_compliance": "YES"
+              },
+              "total_annual_turnover": 1000000,
+              "turnover_breakdown_percentage": {
+                "act": 10,
+                "nsw": 20,
+                "nt": 10,
+                "qld": 10,
+                "sa": 10,
+                "tas": 10,
+                "vic": 20,
+                "wa": 10
+              }
+            }
+          ]
+        }
+      }
+```
 
 # Section
+Each section is explicitly named in the payload and can originate from either `commercial_operations` (for sections like LIABILITY) and `commercial_situations` for sections like PROPERTY).
 
+Each section has its own set of explicitly named coverages which have a variable number of common coverage properties. A coverage in this model represents covers, cover extensions and additional benefits together.
 
+The diagram below represents both request and response properties together. The properties that are not submitted in a request are `acceptance_messages`, `premium_details`, `endorsement_clauses` along with the `status`.
+```mermaid
+erDiagram
+    line_of_businesses ||--|{ commercial_situations : contains
+    line_of_businesses ||--|{ commercial_operations : contains
+    commercial_situations ||--|| section_name_1 : contains
+    section_name_1 {
+        string status
+        string selected
+    }
+    commercial_operations ||--|| section_name_1 : contains
+    section_name_1 ||--|| acceptance : contains
+    section_name_1 ||--|| coverages : contains    
+    coverages ||--|| coverage_1 : contains
+    section_name_1 ||--|| excess_details : contains
+    excess_details ||--|{ excesses : contains
+    section_name_1 ||--|| premium_details : contains
+    premium_details ||--|{ premiums : contains
+    commercial_operations ||--|{ interested_parties : contains
+    section_name_1 ||--|{ acceptance_messages : contains
+    section_name_1 ||--|{ endorsement_clauses : contains
+    section_name_1 ||--|{ notes : contains
+    notes ||--|{ non_printable_notes : contains
+    notes ||--|{ printable_notes : contains
+```
+### Example LIABILITY section
+This gives examples of `acceptance` questions, `coverages`, `excesses`, `endorsement_clauses`, `acceptance_messages`. The validation requirements for acceptance questions and sub questions are detailed in the Swagger contract.
+```json
+{
+              "liability_asset": {
+                "acceptance": {
+                  "contractors_and_subcontractors": {
+                    "contractors_and_subcontractors_engaged": "YES",
+                    "own_liability_and_workers_compensation_insurance": "YES",
+                    "pay_estimate_over_next_twelve_months": [
+                      {
+                        "amount": 1000000,
+                        "contract_type": "LABOUR_ONLY"
+                      }
+                    ],
+                    "types_of_work_contractors_performed": "Delivery"
+                  },
+                  "hazardous_activities": {
+                    "hotwork": {
+                      "details": "Welding of car doors",
+                      "hotwork_engaged": "YES"
+                    },
+                    "working_at_height": {
+                      "lower_limit": 10,
+                      "upper_limit": 20
+                    }
+                  }
+                },
+                "acceptance_messages": [
+                  {
+                    "code": "REF002384B",
+                    "message": "Sum Insured over threshold limit",
+                    "recovery": "Reduce Sum Insured amount to below 1,000,000"
+                  }
+                ],
+                "coverages": {
+                  "designated_contracts": {
+                    "description": "Lorem Ipsum"
+                  },
+                  "motor_trades": {
+                    "rectification_of_faulty_workmanship": {
+                      "estimated_turnover_next_twelve_months": 100000,
+                      "rectification_coverage_required": true
+                    },
+                    "vehicle_inspection_and_valuation": {
+                      "total_fee_income_next_twelve_months": 100000,
+                      "vehicle_inspection_coverage_required": true
+                    },
+                    "vehicles_or_watercraft_in_control": {
+                      "cover_type": "INCLUDING_TESTING_AND_DELIVERY",
+                      "estimated_maximum_value": 350000
+                    }
+                  },
+                  "property_in_physical_and_legal_control": {
+                    "sum_insured": 100000
+                  }
+                },
+                "endorsement_clauses": [
+                  {
+                    "code": "LE81",
+                    "description": "This policy does not cover any liability arising out of or in any way connected with pyrotechnic or fireworks displays or shows, or any use of fireworks or pyrotechnic devices",
+                    "title": "Fireworks and Pyrotechnic Display Exclusion"
+                  }
+                ],
+                "excess_details": {
+                  "excesses": [
+                    {
+                      "description": "Lorem Ipsum",
+                      "imposed": 500,
+                      "total": 500,
+                      "type": "PROPERTY_DAMAGE",
+                      "unit": "DAYS",
+                      "variable": 500,
+                      "variable_origin": "BROKER"
+                    }
+                  ]
+                },
+                "notes": {
+                  "non_printable_notes": [
+                    {
+                      "description": "Description",
+                      "note": "Lorem ipsum dolor sit amet, consectetur adipiscing",
+                      "note_id": "512fd3a5-529a-4659-b483-6b0aba1a27a5"
+                    }
+                  ],
+                  "printable_notes": [
+                    {
+                      "description": "Description",
+                      "note": "Lorem ipsum dolor sit amet, consectetur adipiscing",
+                      "note_id": "512fd3a5-529a-4659-b483-6b0aba1a27a5"
+                    }
+                  ]
+                },
+                "premium_details": {
+                  "premiums": [
+                    {
+                      "base_premium": 70,
+                      "commission": 16.8,
+                      "commission_gst": 1.68,
+                      "esl": 5.5,
+                      "gst": 10,
+                      "stamp_duty": 15,
+                      "total_premium": 105.5,
+                      "type": "TRANSACTION"
+                    }
+                  ]
+                },
+                "selected": true,
+                "status": "QUOTED",
+                "total_loss": true
+              }
+}
+```
 
 # Reference Data
 
