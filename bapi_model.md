@@ -153,10 +153,12 @@ In addition to defining the various parties, this is also where `party_history_d
 ```mermaid
 erDiagram
     parties ||--|{ organisations : contains
+    parties ||--|{ individuals : contains
     organisations ||--|{ party : contains
     party {
         string party_id
     }
+    party_i ||--|{ names_i : contains
     party ||--|{ addresses : contains
     addresses {
         string building_name
@@ -187,7 +189,19 @@ erDiagram
         string area_code
         string number
         string type
-    }    
+    }
+    individuals ||--|{ party_i : contains
+    party_i {
+        string party_id
+    }
+    party_i ||--|{ addresses : contains
+
+    party_i ||--|{ email_contacts : contains
+    names_i {
+        string preferred_name
+    }
+    party_i ||--|{ phone_contacts : contains
+ 
     parties ||--|{ party_roles : contains
     party ||--|{ registered_numbers : contains
     registered_numbers {
@@ -251,13 +265,294 @@ erDiagram
         string sections
     }
 ```
+## Insured Parties
+These are the named parties that are to be insured by the policy.
 
+### Party Primary Policy Holder
 
+### Party Role -Primary Policy Holder
+In order to use this party as insured, there is the need to assign a party role to the payload using the `party_id` as shown above (**INSURED1**) which should be a UUID. Reference data for [Party Roles](#partyRoles)
+```json
+  {
+      "party_roles": [
+        {
+          "party_id": "INSURED1",
+          "role": "PRIMARY_POLICY_HOLDER"
+        }
+      ]
+    }
+```
+## Correspondence Preferences
 
-# Payloads
+### Party - Broker Agent
+If the correspondence preference is **broker agent**, then the party can contain any of the following information with a minimum of `party_id`, `email_address` and/or `address` depending on whether `preferred_communication_mode is "EMAIL" or "MAIL". 
 
+```json
+  {
+    "parties": {
+      "individuals": [
+        {
+          "addresses": [
+            {
+              "address_line_1": "181 William Street",
+              "address_line_2": "Melbourne 2000",
+              "building_name": "Tower Two",
+              "country": "AUS",
+              "locality_name": "Lane Cove",
+              "postcode": "3000",
+              "state": "VIC"
+            }
+          ],
+          "email_contacts": {
+            "emails": [
+              {
+                "email_address": "abc@xyz.com"
+              }
+            ]
+          },
+          "party_id": "BROKER1",
+          "phone_contacts": {
+            "phone_numbers": [
+              {
+                "area_code": "03",
+                "number": "96024650",
+                "type": "PRIMARY"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+```
+### Party Role - Broker Agent
+In order to use this party as broker agent, there is the need to assign a party role to the payload using the `party_id` as shown above (**BROKER1**) which should be a UUID. Reference data for [Party Roles](#partyRoles)
+```json
+  {
+      "party_roles": [
+        {
+          "party_id": "BROKER1",
+          "role": "BROKER_AGENT"
+        }
+      ]
+    }
+```
 
-## Simplified Bind (with Party ABN update)
+## Broker Client
+
+### Party - Broker Client
+```json
+  {
+    "parties": {
+      "individuals": [
+        {
+          "addresses": [
+            {
+              "address_line_1": "181 William Street",
+              "address_line_2": "Melbourne 2000",
+              "building_name": "Tower Two",
+              "country": "AUS",
+              "locality_name": "Lane Cove",
+              "postcode": "3000",
+              "state": "VIC"
+            }
+          ],
+          "email_contacts": {
+            "emails": [
+              {
+                "email_address": "abc@xyz.com"
+              }
+            ]
+          },
+          "names" : {
+            "details" : [
+              {
+                "title" : "MR"
+              }],
+              "preferred_name" : "John Smith"
+          },
+          "party_id": "CLIENT1",
+          "phone_contacts": {
+            "phone_numbers": [
+              {
+                "area_code": "03",
+                "number": "96024650",
+                "type": "PRIMARY"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+```
+### Party Role - Broker Client
+In order to use this party as broker client, there is the need to assign a party role to the payload using the `party_id` as shown above (**CLIENT1**) which should be a UUID. Reference data for [Party Roles](#partyRoles)
+```json
+  {
+      "party_roles": [
+        {
+          "party_id": "CLIENT1",
+          "role": "BROKER_CLIENT"
+        }
+      ]
+    }
+```
+## Interested Parties
+If a Quote request and subsequent policy include the addition of interested parties, they are to be added as a party as shown below.
+```json
+{
+"parties" : {
+     "organisations": [
+       {
+         "addresses": [
+           {
+              "address_line_1": "181 William Street",
+              "address_line_2": "Melbourne 2000",
+              "building_name": "Tower Two",
+              "country": "AUS",
+              "geo_location": {
+                 "gnaf_pid": "GANSW716798454",
+                 "latitude": -31.7708963,
+                 "longitude": 115.84100663
+              },
+              "locality_name": "Lane Cove",
+              "postcode": "3000",
+              "state": "VIC"
+           }
+        ],
+        "email_contacts": {
+           "emails": [
+             {
+               "email_address": "abc@abcbankplc.com"
+             }
+           ]
+        },
+        "names": [
+          {
+            "name": "ABC Bank plc",
+            "type": "TRADING"
+          }
+        ],
+        "party_id": "INTEREST1",
+        "phone_contacts": {
+           "phone_numbers": [
+             {
+               "area_code": "03",
+               "number": "96024650",
+               "type": "PRIMARY"
+             }
+           ]
+         }
+       }
+      ]
+    }
+  }
+```
+### Party Role - Interested Party
+In order to use this party as broker client, there is the need to assign a party role to the payload using the `party_id` as shown above (**INTEREST1**) which should be a UUID. Reference data for [Party Roles](#partyRoles)
+```json
+  {
+      "party_roles": [
+        {
+          "party_id": "INTEREST1",
+          "role": "INTERESTED_PARTY"
+        }
+      ]
+    }
+```
+### Assigning Interested Party - Policy Level
+Using the `party_id` of each interested party, where policy level sections exist, assign them a `nature_of_interest` and list the `sections` as per the accepted reference data options. [Nature of Interest](#natureOfInterest) and [Interested Party Sections](#interestedPartyections)
+```json
+"commercial_operations" : [
+    {
+      "interested_parties": [
+        {
+          "nature_of_interest": "MORTGAGEE",
+          "party_id": "INTEREST1",
+          "sections": ["BUSINESS_INTERRUPTION","PUBLIC_LIABILITY"]
+        }
+     ],
+   }]
+```
+### Assigning Interested Party - Situation Level
+Using the `party_id` of each interested party, where situation level sections exist, assign them a `nature_of_interest` and list the `sections` as per the accepted reference data options for each situation applicable. [Nature of Interest](#natureOfInterest) and [Interested Party Sections](#interestedPartyections)
+```json
+"commercial_situations" : [
+    {
+      "interested_parties": [
+        {
+          "nature_of_interest": "MORTGAGEE",
+          "party_id": "INTEREST1",
+          "sections": ["BUSINESS_PROPERTY","ELECTRONIC_EQUIPMENT"]
+        }
+     ],
+   }]
+```
+
+# Reference Data
+
+### <a name="partyRoles"></a>Party Roles
+| Party Role |
+:----
+| PRIMARY_POLICY_HOLDER |
+| INTERESTED_PARTY |
+| BROKER_AGENT |
+| BROKER_CLIENT |
+
+### <a name="natureOfInterest"></a>Nature of Interest
+| Nature of Interest |
+:----
+| MORTGAGEE |
+| LOCAL_GOVERNMENT_AUTHORITY |
+| LANDLORD |
+| LEASE |
+| PREMIUM_FUNDER |
+| PRINCIPAL |
+| FRANCHISOR |
+| LENDOR |
+| OTHER |
+
+### <a name="interestedPartyections"></a>Interested Party Sections
+| Interested Party Section |
+:----
+| PUBLIC_AND_PRODUCTS_LIABILITY |
+| GENERAL_PROPERTY |
+| EMPLOYEE_DISHONESTY |
+| TAX_INVESTIGATION |
+
+# Additional Payloads
+
+## Bind Request
+
+### Bind with no update to insured party ABN details
+```json
+{
+    "opportunity_id" :  "3aacb472-4f44-4385-96c7-f7605707a5ab",
+    "thread_id" :  "bcf46dab-2ac0-4797-a0fd-65a040e480c1",
+    "quote_id" :  "99a6b43b-7b08-444f-af41-5d337011bcda",
+    "message_sender" : {
+         "full_name" : "John Smith",
+         "email_address" : "js@abc.com.au",
+         "phone_number" : "03 6073000"
+    },
+    "distributor_details" : {
+        "trading_platform_channel" : "AON_CW",
+        "organisation_details" : {
+            "organisation_identifier" : "INTERRISK",
+            "organisation_name" :  "Interrisk Australia Pty Ltd)",
+            "office" : {
+                "office_identifier" : "Melbourne",
+                "office_name" : "Melbourne Office",
+            }
+        }
+    },
+    "policy_dates" : {
+        "message_sent_date" :  "2020-06-30T15:47:55.123+10:00"
+    }
+}
+```
+### Bind with ABN update for insured parties
 ```json
 {
     "opportunity_id" :  "3aacb472-4f44-4385-96c7-f7605707a5ab",
@@ -297,5 +592,4 @@ erDiagram
     }
 }
 ```
-
 
