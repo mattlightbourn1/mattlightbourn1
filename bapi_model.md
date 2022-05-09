@@ -49,16 +49,25 @@ updateQuote | Cancellation | /policies/**{policyId}**/cancellations/**{quoteId}*
 
 ## Operations based upon Quote Responses
 
-## Bind and Close
+### Bind and Close
 If a quote is in a `QUOTED` state then it can be bound and the opportunity closed as long as the quote has not expired.
 Request Type | Lifecycle Stage | Endpoint | Operation | Operation Type | URL
 ----|----|----|---|---|---
 bindRequest | QUOTED | /bind-and-issue | bindAndIssueForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/bind-and-issue/
 closeRequest | BOUND | /close | closeBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/close/
 
-## Notify Loss
+### Notify Loss
+This is to complete the opportunity as lost.
+Request Type | Lifecycle Stage | Endpoint | Operation | Operation Type | URL
+----|----|----|---|---|---
+notifyLoss | QUOTED | /notify-loss | notifyLossForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/notify-loss/
 
-Refer
+### Refer
+This is where the broker has decided to refer to an underwriter which can be done where the current state of a request due to the latest response of `QUOTED`, `REFER` or `DECLINED`.
+A referral is the same payload as a quote request but includes the following additional values:
+Request Type | Lifecycle Stage | Endpoint | Operation | Operation Type | URL
+----|----|----|---|---|---
+referRequest | any | /referrals | createReferralForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/referrals/
 
 # Second Request based workflow - Refer and supply additional info to bind and close
 These are the steps beyond the first round of workflow where the broker submits a new related request off the back of a response from the insurer. Note, for supply additional information, you will be expecting back a new quoteResponse_...... of some sort. The next steps are articulated in both the first and second round of workflow.
@@ -85,19 +94,17 @@ These are the steps beyond the first round of workflow where the broker submits 
 ```
 
 ## Additional Operations based upon Second Request based workflow
+### Conditional
+A conditional quote requires the broker to update quote as described in first request based workflow. This might be to add or remove specific sections and/or coverages in order to be quoted, for example.
 
-Conditional
-Supply Additional Info
+### Supply Additional Info
+Request Type | Lifecycle Stage | Endpoint | Operation | Operation Type | URL
+----|----|----|---|---|---
+supplyInfo | ADDITIONAL INFO | /supply-additional-info | supplyAdditionalInfoForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/supply-additional-info/
 
-### <a name="documentIdentifiers"></a>Document Identifiers
-These are the identifiers that allow you to identify an opportunity, thread, quote and policy.
+# Constructing Request Payload
 
-Object Property | Property Type | Description | Originating Operation
-:------ | :-------- | :-------- | :--------------------
-`quoteid` | `string` | The quote identifier is used in the url for any update quote operations for new business, alteration and cancel. When a quote requires an update, the `quote_id` from [Policy object](#policyObject) will be required. | `request`
-`policyid` | `string` | The policy identifier is used in the url for close after a bind has successfully produced a policy from a quote. When a policy lifecycle needs to close, the `policy_id` from [Policy object](#policyObject) will be required. | `request`
-`opportunity_id`
-`thread_id`
+## Header
 
 ### <a name="integrationObjects"></a>Integration Related Identifiers
 These are the identifiers as used in the **header** and url that control how the interaction between consumer and insurer work.
@@ -106,6 +113,22 @@ Object Property | Property Type | Validation | Description | Originating Operati
 :------ | :-------- | :-------- | :--- | :--------------------
 `X-Iag-Correlation-Id` | `string` | Mandatory | Used to tie together request and response messages for async operations. This is unique per request and returned back in the response. | `request`
 `X-B3-GlobalTransactionId` | `string` | Mandatory | This is the unique message identifier for each and every request and response. | `request` `response`
+### <a name="documentIdentifiers"></a>Document Identifiers
+These are the identifiers that are required on specific operation where either a quote or policy or both already exist. Example, an update to a quote will require the quoteid supplied in the url.
+
+Object Property | Property Type | Description | Originating Operation
+:------ | :-------- | :-------- | :--------------------
+`quoteid` | `string` | The quote identifier is used in the url for any update quote operations for new business, alteration and cancel. When a quote requires an update, the `quote_id` from [Policy object](#policyObject) will be required. | `request`
+`policyid` | `string` | The policy identifier is used in the url for close after a bind has successfully produced a policy from a quote. When a policy lifecycle needs to close, the `policy_id` from [Policy object](#policyObject) will be required. | `request`
+
+## Body
+### <a name="opportunityIdentifiers"></a>Opportunity Identifiers
+These are the identifiers that allow you to identify an opportunity and thread. An opportunity can have may threads if a quote is duplicated. An opportunity must be unique at the beginning of the lifecycle for **crerateQuote** otherwise it will be rejected.
+
+Object Property | Property Type | Validation | Description | Originating Operation
+:------ | :-------- | :-------- | :----------| :----------
+`opportunity_id` | `string` | Mandatory | This is the identifier for the sales opportunity which starts with a create quote. This should be a UUID.| `request` `response`
+`thread_id` | `string` | Mandatory | For each opportunity, we support multiple threads to allow for multiple scenarios to be quoted at the same time. All threads will have unique thread identifiers but share the same opportunity identifier. This should be a UUID. | `request` `response`
 
 ### <a name="messageSenderObject"></a>Message Sender object 
 
@@ -113,6 +136,7 @@ Object Property | Property Type | Validation | Description | Originating Operati
 :------ | :-------- | :-------- | :---- | :--------------------
 `full_name` | `string` | Mandatory | This is the full name of the system operator that submitted the request or is set to Automated system response if a part of the response. This value should originate from the system user profile. | `request` `response`
 `email_address` | `string` | Optional | The email contact details of the system operator. This value should originate from the system user profile. | `request` `response`
+`phone_number` | `string` | Optional | The phone number of the system operator. This value should originate from the system user profile. | `request`
 ```json
   "message_sender": {
     "full_name": "John Smith",
@@ -120,7 +144,6 @@ Object Property | Property Type | Validation | Description | Originating Operati
     "phone_number" : "03 6073000"
   }
 ```
-
 ### <a name="distributorDetailsObject"></a>Distributor Details object
 This contains information about the intermediary organisation transacting with the insurer and includes what trading platform is being used to originate the request.
 
@@ -145,6 +168,20 @@ Object Property | Property Type | Description | Originating Operation
     },
   }
 ```
+### Insured Party
+Every request related to a policy requires at least one insured party. Refer to [Insured Parties](#insuredParties)
+
+### Broker Agent or Broker Client
+The `distributor_details` identifies where a request is originating. As a part of the correspondence preferences, either a [Broker Agent](#brokerAgent) or [Broker Client](#brokerClient) will be required along with either their email or address.  
+
+### Interested Parties
+Where there is the need to include one or more [Interested Party](#interestedParties) in a quote request.
+
+### Business Details
+This is information about occupation, turnover, staff and other characteristics of the business. 
+
+## Situations
+For each business premises to be added to the policy, there will be a situation added for each. This includes the physical address, information about the building, security and safety. Refer to the document section Add Situation.
 
 # Parties
 A party is required for each insured and interested party related to the policy. Each party required a unique identifier (UUID) since it is used as a foreign key in the payload to allocate a `party_role` and assigning the `interested_parties` to the policy and/or specific situations.
@@ -265,12 +302,75 @@ erDiagram
         string sections
     }
 ```
-## Insured Parties
+## <a name="insuredParties"></a> Insured Parties
 These are the named parties that are to be insured by the policy.
 
 ### Party Primary Policy Holder
 
-### Party Role -Primary Policy Holder
+```json
+{
+"parties" : {
+     "organisations": [ 
+       {
+         "addresses": [
+           {
+              "address_line_1": "181 William Street",
+              "address_line_2": "Melbourne 2000",
+              "building_name": "Tower Two",
+              "country": "AUS",
+              "geo_location": {
+                 "gnaf_pid": "GANSW716798454",
+                 "latitude": -31.7708963,
+                 "longitude": 115.84100663
+              },
+              "locality_name": "Lane Cove",
+              "postcode": "3000",
+              "state": "VIC"
+           }
+        ],
+        "email_contacts": {
+          "emails": [
+            {
+              "email_address": "abc@xyz.com"
+            }
+          ]
+        },
+        "insured": {
+          "broker_client_id": "CLNT1234567890",
+          "insurer_client_id": "CLNT1234567890"
+        },
+        "names": [
+          {
+            "name": "Business Name Limited.",
+            "type": "TRADING"
+          },
+          {
+            "name": "The Name to Insure Under",
+            "type": "REGISTERED"
+          }
+        ],
+        "party_id": "insured_party_uuid",
+        "phone_contacts": {
+          "phone_numbers": [
+            {
+              "area_code": "03",
+              "number": "96024650",
+              "type": "PRIMARY"
+            }
+          ]
+        },
+       "registered_numbers": [
+          {
+            "number": "123 455 678",
+            "type": "ABN"
+          }
+        ]
+     }
+   ]
+  }
+}
+```
+### Party Role - Primary Policy Holder
 In order to use this party as insured, there is the need to assign a party role to the payload using the `party_id` as shown above (**INSURED1**) which should be a UUID. Reference data for [Party Roles](#partyRoles)
 ```json
   {
@@ -283,10 +383,10 @@ In order to use this party as insured, there is the need to assign a party role 
     }
 ```
 ## Correspondence Preferences
-
-### Party - Broker Agent
 If the correspondence preference is **broker agent**, then the party can contain any of the following information with a minimum of `party_id`, `email_address` and/or `address` depending on whether `preferred_communication_mode is "EMAIL" or "MAIL". 
 
+## <a name="brokerAgent"></a> Party - Broker Agent
+Payload for a broker agent.
 ```json
   {
     "parties": {
@@ -337,10 +437,8 @@ In order to use this party as broker agent, there is the need to assign a party 
       ]
     }
 ```
-
-## Broker Client
-
-### Party - Broker Client
+## <a name="brokerClient"></a> Party - Broker Client
+Payload for a broker client.
 ```json
   {
     "parties": {
@@ -398,7 +496,7 @@ In order to use this party as broker client, there is the need to assign a party
       ]
     }
 ```
-## Interested Parties
+## <a name="interestedParties"></a> Party - Interested Party
 If a Quote request and subsequent policy include the addition of interested parties, they are to be added as a party as shown below.
 ```json
 {
