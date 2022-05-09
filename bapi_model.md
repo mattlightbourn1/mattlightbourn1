@@ -102,7 +102,7 @@ Request Type | Lifecycle Stage | Endpoint | Operation | Operation Type | URL
 ----|----|----|---|---|---
 supplyInfo | ADDITIONAL INFO | /supply-additional-info | supplyAdditionalInfoForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/supply-additional-info/
 
-# Constructing Request Payload
+# Constructing Quote Request Payload
 
 ## Header
 
@@ -113,9 +113,9 @@ Object Property | Property Type | Validation | Description | Originating Operati
 :------ | :-------- | :-------- | :--- | :--------------------
 `X-Iag-Correlation-Id` | `string` | Mandatory | Used to tie together request and response messages for async operations. This is unique per request and returned back in the response. | `request`
 `X-B3-GlobalTransactionId` | `string` | Mandatory | This is the unique message identifier for each and every request and response. | `request` `response`
+
 ### <a name="documentIdentifiers"></a>Document Identifiers
 These are the identifiers that are required on specific operation where either a quote or policy or both already exist. Example, an update to a quote will require the quoteid supplied in the url.
-
 Object Property | Property Type | Description | Originating Operation
 :------ | :-------- | :-------- | :--------------------
 `quoteid` | `string` | The quote identifier is used in the url for any update quote operations for new business, alteration and cancel. When a quote requires an update, the `quote_id` from [Policy object](#policyObject) will be required. | `request`
@@ -129,6 +129,12 @@ Object Property | Property Type | Validation | Description | Originating Operati
 :------ | :-------- | :-------- | :----------| :----------
 `opportunity_id` | `string` | Mandatory | This is the identifier for the sales opportunity which starts with a create quote. This should be a UUID.| `request` `response`
 `thread_id` | `string` | Mandatory | For each opportunity, we support multiple threads to allow for multiple scenarios to be quoted at the same time. All threads will have unique thread identifiers but share the same opportunity identifier. This should be a UUID. | `request` `response`
+```json
+{
+  "opportunity_id": "aeda01d8-f48e-4bb6-a842-ba6e4f85dfe2",
+  "thread_id": "c222cecf-af18-455a-9596-e76807d7c9be"
+}
+```
 
 ### <a name="messageSenderObject"></a>Message Sender object 
 
@@ -180,8 +186,17 @@ Where there is the need to include one or more [Interested Party](#interestedPar
 ### Business Details
 This is information about occupation, turnover, staff and other characteristics of the business. 
 
-## Situations
-For each business premises to be added to the policy, there will be a situation added for each. This includes the physical address, information about the building, security and safety. Refer to the document section Add Situation.
+### Situations
+For each business premises to be added to the policy, there will be a [Situation](#situation) added for each. This includes the physical address, information about the building, security and safety. Refer to the document section Add Situation.
+
+### Sections
+There needs to be at least one [Section](#section) in a quote request at policy level or at least one per situation added. A section relates to one or more coverages and each section has their own set of acceptance questions.
+
+### Excesses
+There are some [Excesses](#excesses) that the broker can request and then others that are applied by the insurer. In addition to the variable amount, there is also an amount that can be imposed by the underwriter and then the total excess. All excesses are in their respective sections within the request and response.
+
+### Notes
+There is the option to add notes to the policy, situation or section which are either [Printable Note](#printableNote) in the policy schedule or [Non-Printable Note](#nonPrintableNote). 
 
 # Parties
 A party is required for each insured and interested party related to the policy. Each party required a unique identifier (UUID) since it is used as a foreign key in the payload to allocate a `party_role` and assigning the `interested_parties` to the policy and/or specific situations.
