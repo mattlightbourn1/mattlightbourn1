@@ -602,6 +602,148 @@ Using the `party_id` of each interested party, where situation level sections ex
      ],
    }]
 ```
+## Party Disclosures
+
+### Adding Claims History
+
+```json
+{
+    "party_history_disclosures": {
+      "claims_history": {
+        "claims_last_three_years": [
+          {
+            "claim_amount": 200,
+            "date_of_loss": {
+              "day": 15,
+              "month": 6,
+              "year": 2020
+            },
+            "description": "Business Claim",
+            "preventive_or_corrective_action": "updated reports",
+            "sections": [
+              "string"
+            ]
+          }
+        ],
+        "claims_made_in_last_three_years": true
+      }
+    }
+}
+```
+
+### Party Disclosures
+The party disclosures are very explicit for all relevant disclosures required for all quote requests.
+```json
+{
+    "party_history_disclosures": {
+      "bankruptcy": {
+        "declared_bankrupt": "YES",
+        "details": [
+          {
+            "date": {
+              "day": 15,
+              "month": 6,
+              "year": 2020
+            },
+            "description": "Details of the disclosure."
+          }
+        ]
+      },
+      "civil_offence_or_pecuniary_penalty": {
+        "details": [
+          {
+            "date": {
+              "day": 15,
+              "month": 6,
+              "year": 2020
+            },
+            "description": "Details of the disclosure."
+          }
+        ],
+        "liable_for_penalty": "YES"
+      },
+      "criminal_conviction": {
+        "convicted_for_offence": "YES",
+        "details": [
+          {
+            "date": {
+              "day": 15,
+              "month": 6,
+              "year": 2020
+            },
+            "description": "Details of the disclosure."
+          }
+        ]
+      },
+      "exceptional_risk_circumstances": {
+        "details": [
+          {
+            "date": {
+              "day": 15,
+              "month": 6,
+              "year": 2020
+            },
+            "description": "Details of the disclosure."
+          }
+        ],
+        "risk_exist": "YES"
+      },
+      "holding_underwriter": {
+        "current_liability_or_insurance": "YES",
+        "name": "Allianz",
+        "new_venture": "NO",
+        "other": "Other"
+      },
+      "insolvency": {
+        "details": [
+          {
+            "date": {
+              "day": 15,
+              "month": 6,
+              "year": 2020
+            },
+            "description": "Details of the disclosure."
+          }
+        ],
+        "insolvency_exist": "YES"
+      },
+      "insurance_declined_cancelled_terms_imposed": {
+        "details": [
+          {
+            "date": {
+              "day": 15,
+              "month": 6,
+              "year": 2020
+            },
+            "description": "Details of the disclosure."
+          }
+        ],
+        "insurance_declined": "YES"
+      },
+      "property_in_disrepair_or_poor_condition": {
+        "condition_exist": "YES",
+        "details": [
+          {
+            "description": "Property in Disrepair or Poor Condition."
+          }
+        ]
+      },
+      "threats_to_life_or_property_received": {
+        "details": [
+          {
+            "date": {
+              "day": 15,
+              "month": 6,
+              "year": 2020
+            },
+            "description": "Details of the disclosure."
+          }
+        ],
+        "threats_received": "YES"
+      }
+    }
+    }
+```
 
 # Reference Data
 
@@ -634,7 +776,15 @@ Using the `party_id` of each interested party, where situation level sections ex
 | EMPLOYEE_DISHONESTY |
 | TAX_INVESTIGATION |
 
-# Additional Payloads
+# Payload Examples
+
+## Quote Request - All
+
+## Quote Request - additions specific to alteration
+
+## Quote Request - additions specific to cancellation
+
+## Refer Quote Request - additions specific to referrals and supply information
 
 ## Bind Request
 
@@ -705,4 +855,7 @@ Using the `party_id` of each interested party, where situation level sections ex
     }
 }
 ```
+## Close Request
+
+## Notify Loss
 
