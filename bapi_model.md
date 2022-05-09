@@ -1174,6 +1174,28 @@ This gives examples of `acceptance` questions, `coverages`, `excesses`, `endorse
               }
 }
 ```
+## Notes
+Below is an example of both printable and non-printable notes. Printable notes are ones that will be added to the policy schedule.
+```json
+{
+                "notes": {
+                  "non_printable_notes": [
+                    {
+                      "description": "Description",
+                      "note": "Lorem ipsum dolor sit amet, consectetur adipiscing",
+                      "note_id": "512fd3a5-529a-4659-b483-6b0aba1a27a5"
+                    }
+                  ],
+                  "printable_notes": [
+                    {
+                      "description": "Description",
+                      "note": "Lorem ipsum dolor sit amet, consectetur adipiscing",
+                      "note_id": "512fd3a5-529a-4659-b483-6b0aba1a27a5"
+                    }
+                  ]
+                }
+}
+```
 
 # Reference Data
 
