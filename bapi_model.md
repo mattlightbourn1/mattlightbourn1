@@ -209,6 +209,14 @@ There are some [Excesses](#excesses) that the broker can request and then others
 ### Notes
 There is the option to add notes to the policy, situation or section which are either [Printable Note](#printableNote) in the policy schedule or [Non-Printable Note](#nonPrintableNote). 
 
+## Additional Values by type of Transaction
+
+### Alteration
+
+
+### Cancellation
+
+
 # Consuming Insurer Response Payloads
 
 ## Header
@@ -229,13 +237,65 @@ For each `id` there will also be a related `number`. Example, `quote_id` will pa
 
 Object Property | Property Type | Description | Located
 :------ | :-------- | :-------- | :--------------------
-`remarks`
-`acceptance_messages`
-`premiums` | `array object` | This is an object which contains a type of premium. In the response, you will received 3 objects in the payload for `TRANSACTION`, `ANNUALISED` and `CURRENT_TERM` even if some contain nothing but zeros. | `policy` `section`
-`excesses`
+`remarks` | `object`
+`acceptance_messages` | `array object` | This is where automated business rule messages are provided back to the broker | `policy` `situation` `section`
+`premiums` | `array object` | This is an object which contains a type of [Premium](#premiums). In the response, you will received 3 objects in the payload for `TRANSACTION`, `ANNUALISED` and `CURRENT_TERM` even if some contain nothing but zeros. | `policy` `section`
+`excesses` | `array object` | This is an object which contains each of the [Excesses](#excesses). An excess can be requested by the broker and imposed by the insurer system or underwriter. | `section`
 `status` | `string` | This is the [Quote Status](#quoteStatus) of the policy, situation or section. | `policy` `situation` `section`
-endorsement_clauses` | `array object` | These endorsement clauses are either automatically added based upon answers to acceptance questions or occupation. They can also be imposed by an underwriter. There are standard ones which have a code with comsumer specific wording (description) or if an underwriter adds an LE81 then this is a free-text  endorsement clause that has been added. | `policy` `situation` `section`
-`transaction_activity_logs`
+`endorsement_clauses` | `array object` | These endorsement clauses are either automatically added based upon answers to acceptance questions or occupation. They can also be imposed by an underwriter. There are standard ones which have a code with comsumer specific wording (description) or if an underwriter adds an LE81 then this is a free-text  endorsement clause that has been added. | `policy` `situation` `section`
+`transaction_activity_logs` | `array object` | This is an list of all activities to and from the insurer, produced by the insurer system. | `policy`
+`referral_details` | `object` | This is where the underwriter response is supplied to the broker. | `policy`
+
+# Response Objects
+
+## <a name="premiums"></a> Premiums
+As a part of the response, if QUOTED then it will include 3 premium objects in the `premiums` array at policy level and for each section that has been able to produce a premium.
+```json
+{
+  "premiums": [
+     {
+        "base_premium": 70,
+        "commission": 16.8,
+        "commission_gst": 1.68,
+        "esl": 5.5,
+        "gst": 10,
+        "stamp_duty": 15,
+        "total_premium": 105.5,
+        "type": "TRANSACTION"
+     }
+  ]
+}
+```
+
+## <a name="excesses"></a> Excesses
+The excess object is generic in nature and has some specific values that describe what type of excess it is and where it originated.
+```json
+{
+"<section name>" : [
+  {
+     "excess_details": {
+        "excesses": [
+            {
+               "description": "Lorem Ipsum",
+               "imposed": 500,
+               "total": 500,
+               "type": "PROPERTY_DAMAGE_ONLY",
+               "unit": "CURRENCY",
+               "variable": 500,
+               "variable_origin": "BROKER"
+            }
+     ]
+  }
+```
+## <a name="acceptanceMessages"></a> Acceptance Messages
+
+## <a name="referralDetails"></a> Referral Details
+
+## <a name="endorsementClauses"></a> Endorsement Clauses
+
+## <a name="remarks"></a> Remarks
+
+## <a name="transactionActivityLog"></a> Transaction Activity Log
 
 # Parties
 A party is required for each insured and interested party related to the policy. Each party required a unique identifier (UUID) since it is used as a foreign key in the payload to allocate a `party_role` and assigning the `interested_parties` to the policy and/or specific situations.
