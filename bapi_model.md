@@ -206,7 +206,7 @@ The `distributor_details` identifies where a request is originating. As a part o
 Where there is the need to include one or more [Interested Party](#interestedParties) in a quote request.
 
 ### Business Details
-This is information about occupation, turnover, staff and other characteristics of the business. 
+This is information about occupation, turnover, staff and other characteristics of the business. It is contained within [Commercial Operation](#commercialOperation)
 
 ### Situations
 For each business premises to be added to the policy, there will be a [Situation](#situation) added for each. This includes the physical address, information about the building, security and safety. Refer to the document section Add Situation.
@@ -218,7 +218,7 @@ There needs to be at least one [Section](#section) in a quote request at policy 
 There are some [Excesses](#excesses) that the broker can request and then others that are applied by the insurer. In addition to the variable amount, there is also an amount that can be imposed by the underwriter and then the total excess. All excesses are in their respective sections within the request and response.
 
 ### Notes
-There is the option to add notes to the policy, situation or section which are either [Printable Note](#printableNote) in the policy schedule or [Non-Printable Note](#nonPrintableNote). 
+There is the option to add [Notes](#notes) to the policy, situation or section which are either printable in the policy schedule or non-printable in the schedule. 
 
 ## Additional Values by type of Transaction
 The objects and object properties described above are relevant for New Business, Alteration, Cancellation and (WIP) Renewal. Where there are differences in the type of request, see below.
@@ -396,7 +396,21 @@ Remarks can be applied in both directions. From the insurer, `benefits`, `condit
 ## <a name="transactionActivityLog"></a> Transaction Activity Log
 
 ```json
-
+{
+  "transaction_activity_logs": [
+    {
+      "acceptance_messages": "REF00002 Transaction forward-dated beyond standard limit",
+      "attachments": "Schedule.pdf (1mb)\nPhoto.jpg (150kb)\nEmail.msg (1mb)",
+      "reference": "E15T1234567",
+      "remarks": "This quote is based on CGU’s default excess.",
+      "sender_name": "John Smith",
+      "sender_organisation": "CGU",
+      "serial_number": 1,
+      "time_stamp": "2020-06-30T15:47:55.123+10:00",
+      "type": "Initial Quote"
+    }
+  ]
+}
 ```
 # Parties
 A party is required for each insured and interested party related to the policy. Each party required a unique identifier (UUID) since it is used as a foreign key in the payload to allocate a `party_role` and assigning the `interested_parties` to the policy and/or specific situations.
@@ -1115,7 +1129,7 @@ The following example shows a single situation.
         }
 ```
 ### <a name="commercialOperation"></a>Commercial Operation
-This is where we place what we refer to as `policy` level sections into. If there are no sections to add (for example, the quote request is for a `situation` level section only, like PROPERTY) then some of commercial_operation will still exist because it contains the **business details** 
+This is where we place what we refer to as `policy` level sections into. If there are no sections to add (for example, the quote request is for a `situation` level section only, like PROPERTY) then some of commercial_operation will still exist because it contains the **business details** as required to give details on turnover, staff numbers, etc.
 ```json
 {
         "assets": {
