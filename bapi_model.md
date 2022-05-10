@@ -12,10 +12,10 @@ This page details a concept data payload for the exchange of data between variou
 The diagram below shows the various operations required from the initial request of a quote through to binding and closing on the happy path. Where there are other additional requests required to change the outcome (example, **referRequest**) these additional paths will be documented using a variation of this workflow. 
 ```mermaid
   flowchart LR;
-      A[createQuote]:::green--Quoted-->B[quoteResponse_Quoted];
       classDef black color:#fff,fill:#000;
-      classDef green color:#022e1f,fill:#00f500;
+      classDef green color:0BAB47,fill:#00f500;
       B--Lost-->L[notifyLoss]:::green;
+      A[createQuote]:::green--Quoted-->B[quoteResponse_Quoted];
       B--Bind-->C[bindRequest]:::green;
       C--Bound-->G[closeRequest]:::green;
       C-->I[error]:::black;
@@ -74,7 +74,7 @@ These are the steps beyond the first round of workflow where the broker submits 
 ```mermaid
   flowchart LR;
       classDef black color:#fff,fill:#000;
-      classDef green color:#022e1f,fill:#00f500;
+      classDef green color:0BAB47,fill:#00f500;
       B[quoteResponse_Quoted]--Refer-->D[referRequest]:::green;
       E[quoteResponse_Refer]--Refer-->D;
       F[quoteResponse_Declined]--Refer-->D;
@@ -102,6 +102,12 @@ Request Type | Lifecycle Stage | Endpoint | Operation | Operation Type | URL
 ----|----|----|---|---|---
 supplyInfo | ADDITIONAL INFO | /supply-additional-info | supplyAdditionalInfoForBusinessPackProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/supply-additional-info/
 
+### Receive Quote Response
+As a part of the request from the broker, there is the need to include a [Callback URL](#callbackUrl) which will then receive replies to requests coming from the following operation.
+Request Type | Lifecycle Stage | Endpoint | Operation | Operation Type | URL
+----|----|----|---|---|---
+quoteResponse | reply | /reply | replyForBusinessProduct | POST | https://product-services-dev.ff-dev.iagcloud.net/services/v1/product/commercial/business/reply
+
 # Constructing Quote Request Payload
 
 ## Header
@@ -121,6 +127,12 @@ Object Property | Property Type | Description | Originating Operation
 `quoteid` | `string` | The quote identifier is used in the url for any update quote operations for new business, alteration and cancel. When a quote requires an update, the `quote_id` from [Policy object](#policyObject) will be required. | `request`
 `policyid` | `string` | The policy identifier is used in the url for close after a bind has successfully produced a policy from a quote. When a policy lifecycle needs to close, the `policy_id` from [Policy object](#policyObject) will be required. | `request`
 
+### <a name="callbackUrl"></a>Callback URL
+Every request from a broker will need to supply where the insurer should return a reply to using a url.
+```json
+
+```
+
 ## Body
 ### <a name="opportunityIdentifiers"></a>Opportunity Identifiers
 These are the identifiers that allow you to identify an opportunity and thread. An opportunity can have may threads if a quote is duplicated. An opportunity must be unique at the beginning of the lifecycle for **crerateQuote** otherwise it will be rejected.
@@ -135,7 +147,6 @@ Object Property | Property Type | Validation | Description | Originating Operati
   "thread_id": "c222cecf-af18-455a-9596-e76807d7c9be"
 }
 ```
-
 ### <a name="messageSenderObject"></a>Message Sender object 
 
 Object Property | Property Type | Validation | Description | Originating Operation
@@ -310,14 +321,83 @@ The excess object is generic in nature and has some specific values that describ
 ```
 ## <a name="acceptanceMessages"></a> Acceptance Messages
 
+```json
+{    "acceptance_messages": [
+      {
+        "code": "REF002384B",
+        "message": "Sum Insured over threshold limit",
+        "recovery": "Reduce Sum Insured amount to below 1,000,000"
+      }
+    ]
+}
+```
+
 ## <a name="referralDetails"></a> Referral Details
 
+```json
+{
+    "referral_details" : {
+        "attachments" : [
+            {
+              "category": "POLICY_SCHEDULE",
+              "filename": "policy_schedule.pdf"
+            }
+        ],
+        "message" : "Ut enim ad minim veniam, quis nostrud exercitation.",
+        "reason" : "DISCLOSURE"
+    }
+}
+```
 ## <a name="endorsementClauses"></a> Endorsement Clauses
 
+```json
+{
+  "endorsement_clauses": [
+    {
+      "code": "LE81",
+      "description": "This policy does not cover any liability arising out of or in any way connected with pyrotechnic or fireworks displays or shows, or any use of fireworks or pyrotechnic devices",
+      "title": "Fireworks and Pyrotechnic Display Exclusion"
+    }
+  ]
+}
+```
 ## <a name="remarks"></a> Remarks
-
+Remarks can be applied in both directions. From the insurer, `benefits`, `conditions` and `decline`. The `remark` is from the broker to the insurer and is usually at the point where the broker is requesting a referral or is supplying additional information.
+```json
+{
+  "remarks": {
+    "benefits": [
+      {
+        "benefit": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+      }
+    ],
+    "conditions": [
+      {
+        "condition": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+      }
+    ],
+    "decline": {
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod."
+    },
+    "remark": {
+      "attachments": [
+        {
+          "category": "POLICY_SCHEDULE",
+          "filename": "policy_schedule.pdf"
+        }
+      ],
+      "description": "Lorem Ipsum",
+      "message": "Ut enim ad minim veniam, quis nostrud exercitation.",
+      "reason": "DISCLOSURE"
+    }
+  }
+}
+```
 ## <a name="transactionActivityLog"></a> Transaction Activity Log
 
+```json
+
+```
 # Parties
 A party is required for each insured and interested party related to the policy. Each party required a unique identifier (UUID) since it is used as a foreign key in the payload to allocate a `party_role` and assigning the `interested_parties` to the policy and/or specific situations.
 
