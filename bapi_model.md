@@ -263,20 +263,27 @@ All responses will include a new `quote_id` for all requests. In order to proces
 
 Where the request was a **bindRequest** the response will include a `policy_id`. This will be used in the header for any **alterationRequest** where there is an existing policy that you wish to apply changes.
 
-For each `id` there will also be a related `number`. Example, `quote_id` will pair with a `quote_number`.
+For each `id` there will also be a related `number`. Example, `quote_id` will pair with a `quote_number`. The quote number is a human readable identifier for a quote intended to be printed on the quote schedule and used in communications between customers, brokers and underwriters to identify a quote.
 
 ### Response Values
 
 Object Property | Property Type | Description | Located
 :------ | :-------- | :-------- | :--------------------
-`remarks` | `object`
-`acceptance_messages` | `array object` | This is where automated business rule messages are provided back to the broker | `policy` `situation` `section`
-`premiums` | `array object` | This is an object which contains a type of [Premium](#premiums). In the response, you will received 3 objects in the payload for `TRANSACTION`, `ANNUALISED` and `CURRENT_TERM` even if some contain nothing but zeros. | `policy` `section`
-`excesses` | `array object` | This is an object which contains each of the [Excesses](#excesses). An excess can be requested by the broker and imposed by the insurer system or underwriter. | `section`
-`status` | `string` | This is the [Quote Status](#quoteStatus) of the policy, situation or section. | `policy` `situation` `section`
-`endorsement_clauses` | `array object` | These endorsement clauses are either automatically added based upon answers to acceptance questions or occupation. They can also be imposed by an underwriter. There are standard ones which have a code with comsumer specific wording (description) or if an underwriter adds an LE81 then this is a free-text  endorsement clause that has been added. | `policy` `situation` `section`
+`remarks.remark` | `string` | Remarks are essentially general comments intended to communicate information to the broker. | `policy`
+`remarks.remark.attachment` | `array` | A remark may include one or more attached file/document. | `policy`
+`remarks.conditions` | `string array` | Quote Conditions (or conditional quote reasons) are used to indicate the reason(s) why CGU is providing a Conditional Quote.  Since a Conditional Quote cannot be bound, the Quote Conditions indicate the issues that must be resolved to requote and proceed further with CGU.  Given these conditions are used purely during the Quote stage, once resolved in a subsequent quote they will no longer appear. Quote Conditions will not persist through to the Bind stage nor appear on policy schedules.  By contrast, terms that do not prevent a valid quote but that are instead intended to apply to the policy will be added as Endorsement Clauses, rather than as Quote Conditions. | `policy`
+`remarks.decline` | `string` | The Decline Reason provides a summary indication why CGU declined to provide a quote. | `policy`
+`remarks.benefits` | `string array` | The Benefits message provides reasons why the client should proceed to purchase insurance with CGU. | `policy`
+`policy_dates.quote_expiry_date` | `date` | The quote expiry date represents the day on which the quote will expire and on which a quote with a **QUOTED** status can no longer be bound. At that stage, a re-quotquired should the client wish to proceed with CGU, and this could result in premiums or other terms changing | `policy`
+`policy_wording` | `object` | The Policy Wording (or, for retail products, PDS) is a key document since, in conjunction with the policy schedule, it forms the insurance contract between CGU and the Insured.  The Policy Wording information included in the Quote Response is therefore important to provide precision and the avoidance of ambiguity. | `policy`
+`acceptance_messages` | `array object` | Acceptance (Rule) Messages are used to provide information back to the broker on the rules that triggered that impact CGU's ability to provide a quote.  This can help inform the broker's decision on the next steps to take with the transaction. | `policy` `situation` `section`
+`premiums` | `array object` | Premiums represent the amounts to be paid for a contract of insurance. Premiums returned will be at policy level (the total premiums) and for each section level. There are three types of premium returned. `TRANSACTION` is the amount to be charged for the current transaction. `ANNUALISED` is the amount to be paid for a policy based on the current transaction for a standard 12 month policy term. `CURRENT_TERM` is the total transaction premiums charged for the current policy term (including the current transaction. | `policy` `section`
+`excesses` | `array object` | Excesses (or deductibles) represent the amount of an insurance claim that is to be covered by the Insured.  While some excesses may be stated explicitly in a policy wording or PDS, many excess types are open to be specified and as a result must be printed on the policy schedule.  CGU supports dial-up and dial-down of excess amounts, but may choose to override and return alternative or additionally imposed amounts when providing terms in its response. | `section`
+`status` | `string` | This is the [Quote Status](#quoteStatus) of the policy, situation or section. At `policy` level, the quote status summarises CGU's response to the quote request. It helps inform valid next steps for the transaction - for example, only quotes with a Quoted status can be bound. | `policy` `situation` `section`
+`<section>.status` | `string` | Acceptance Status serves a purpose similar to Quote Status to summarise CGU's view of a particular section or situation within the Quote Request.  It helps inform valid next steps for the transaction - for example, if one section is Declined and another is Quoted, it provides insight that CGU may be willing to provide insurance if the Declined section is not required and is excluded from the quote. | `section`
+`endorsement_clauses` | `array object` | Endorsement Clauses are terms printed on the policy schedule to vary the cover provided from the standard position specified in the Policy Wording.  They may be used to extend cover where appropriate to circumstances otherwise excluded by the policy wording, or may be used to limit cover to allow offering insurance to otherwise unacceptable risks. | `policy` `situation` `section`
 `transaction_activity_logs` | `array object` | This is an list of all activities to and from the insurer, produced by the insurer system. | `policy`
-`referral_details` | `object` | This is where the underwriter response is supplied to the broker. | `policy`
+`referral_details` | `object` | This is where a broker remark is mapped related to a referral request and supply additional info which is passed through to the underwriter to explain why they referred it and to include one or more attachments, if required. | `policy`
 
 # Response Objects
 
@@ -298,6 +305,15 @@ As a part of the response, if QUOTED then it will include 3 premium objects in t
   ]
 }
 ```
+Object Property | Property Type | Description | Located
+:------ | :-------- | :-------- | :--------------------
+`base_premium` | `integer` | description | `premium`
+`commission` | `integer` | Commission represents the remuneration the broker expects to receive from the insurer for placing a policy with the insurer.  It is calculated as a proportion of the base premium.  We will return information about commissions as part of each transaction to help facilitate account reconciliation in this important respect. | `premium`
+`commission_gst` | `integer` | This is the calculated GST amount from the `commission` value. | `premium`
+`esl` | `integer` | This is the ESL (Emergency Services Levy) applied to the quote. | `premium`
+`gst` | `integer` | This is the calculated GST amount from the total of `base_premium`, `esl`. | `premium`
+`stamp_duty` | `integer` | This is the stamp duty applied to the quote. | `premium`
+`total_premium` | `integer` | This is the total of  | `premium`
 
 ## <a name="excesses"></a> Excesses
 The excess object is generic in nature and has some specific values that describe what type of excess it is and where it originated.
@@ -1407,16 +1423,18 @@ Below is an example of both printable and non-printable notes. Printable notes a
 ### <a name="quoteStatus"></a>Quote Status
 Quote status is located at various locations in the payload as shown below:
 
-| Quote STATUS |
-:----
-| QUOTED |
-| DECLINED |
-| REFER |
-| REFERRED |
-| INFORMATION_REQUESTED |
-| INFORMATION_SUPPLIED |
+Status | Code | Details
+:--- | :---- | :---
+Quoted | QUOTED |
+Conditional Quote | CONDITIONAL
+Decline | DECLINED |
+Referral Required | REFER |
+*inferred* | REFERRED | When a referral is requested and a 200 response received back, you can consider the request has been received. |
+Further Information Required| INFORMATION_REQUESTED |
+*inferred* | INFORMATION_SUPPLIED | When information supply is requested and a 200 response received back, you can consider the request has been received. |
 | BOUND |
 | CLOSED |
+Error | ERROR |
 
 # Payload Examples
 
